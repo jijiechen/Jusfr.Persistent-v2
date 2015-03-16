@@ -32,7 +32,7 @@ namespace Jusfr.Persistent.NH {
 
         public virtual ISession EnsureSession() {
             if (_session == null) {
-                Debug.WriteLine("{0,2} Open session", Interlocked.Increment(ref _count));
+                Debug.WriteLine("Open session, count {0}", Interlocked.Increment(ref _count));
                 _session = _sessionFactory.OpenSession();
             }
             if (_suspendTransaction && !_session.Transaction.IsActive) {
@@ -74,7 +74,7 @@ namespace Jusfr.Persistent.NH {
                     throw;
                 }
                 finally {
-                    Debug.WriteLine("{0,2} Dispose session", Interlocked.Decrement(ref _count));
+                    Debug.WriteLine("Dispose session, left {0}", Interlocked.Decrement(ref _count));
                     if (_session.Transaction.IsActive) {
                         _session.Transaction.Dispose();
                     }
