@@ -12,6 +12,7 @@ namespace Jusfr.Persistent.Mongo {
     public class MongoRepository<TEntry> : Repository<TEntry> where TEntry : class, IAggregate {
         private readonly MongoRepositoryContext _context = null;
         private readonly MongoAutoincrementGenerator _autoincrementGenerator;
+        private readonly IMongoEntryMapper _entryMapper = new MongoEntryMapper();
 
         public MongoRepositoryContext MGContext {
             get { return _context; }
@@ -31,28 +32,30 @@ namespace Jusfr.Persistent.Mongo {
         public override IQueryable<TEntry> All {
             get {
                 return _context.DatabaseFactory()
-                    .GetCollection<TEntry>(typeof(TEntry).Name).AsQueryable();
+                    .GetCollection<TEntry>(_entryMapper.Map<TEntry>()).AsQueryable();
             }
         }
 
         public override TEntry Retrive(int id) {
-            var docs = _context.DatabaseFactory().GetCollection<TEntry>(typeof(TEntry).Name);
+            var docs = _context.DatabaseFactory().GetCollection<TEntry>(_entryMapper.Map<TEntry>());
             return docs.FindOneById(id);
         }
 
-        public override IEnumerable<TEntry> Retrive(String filed, IList<Int32> keys) {
-            throw new NotImplementedException();
+        public override IEnumerable<TEntry> Retrive<TKey>(String filed, IList<TKey> keys) {
+            var docs = _context.DatabaseFactory().GetCollection<TEntry>(_entryMapper.Map<TEntry>());
+            //return docs.Find(Query<TEntry>.In(r => r.Id, keys));
+            return docs.Find(Query.In(filed, keys.Select(k => BsonValue.Create(k)))).AsEnumerable();
         }
 
         public override void Create(TEntry entry) {
-            var entryName = typeof(TEntry).Name;
+            var entryName = _entryMapper.Map<TEntry>();
             var docs = _context.DatabaseFactory().GetCollection<TEntry>(entryName);
             entry.Id = _autoincrementGenerator.GetNewId(entryName);
             docs.Insert(entry);
         }
 
         public override void Update(TEntry entry) {
-            var docs = _context.DatabaseFactory().GetCollection<TEntry>(typeof(TEntry).Name);
+            var docs = _context.DatabaseFactory().GetCollection<TEntry>(_entryMapper.Map<TEntry>());
             docs.Update(Query<TEntry>.EQ(r => r.Id, entry.Id),
                 Update<TEntry>.Replace(entry),
                 UpdateFlags.Upsert);
@@ -65,7 +68,7 @@ namespace Jusfr.Persistent.Mongo {
         }
 
         public override void Delete(TEntry entry) {
-            var docs = _context.DatabaseFactory().GetCollection<TEntry>(typeof(TEntry).Name);
+            var docs = _context.DatabaseFactory().GetCollection<TEntry>(_entryMapper.Map<TEntry>());
             docs.Remove(Query<TEntry>.EQ(r => r.Id, entry.Id), RemoveFlags.Single);
         }
 

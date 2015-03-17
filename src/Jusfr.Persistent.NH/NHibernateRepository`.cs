@@ -35,10 +35,10 @@ namespace Jusfr.Persistent.NH {
             //return (TEntry)NHContext.EnsureSession().Get(typeof(TEntry), id);
         }
 
-        public override IEnumerable<TEntry> Retrive(String field, IList<Int32> keys) {
+        public override IEnumerable<TEntry> Retrive<TKey>(String field, IList<TKey> keys) {
             var session = NHContext.EnsureSession();
             ICriteria criteria = session.CreateCriteria<TEntry>()
-                .Add(Restrictions.In(field, keys.ToList()));
+                .Add(Restrictions.In(field, keys.ToArray()));
             return criteria.List<TEntry>();
         }
 

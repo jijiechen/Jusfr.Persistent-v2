@@ -20,39 +20,60 @@ namespace Demo {
 
             var context = GetMongoRepositoryContext();
             var repository = new MongoRepository<Person>(context);
-            var names = "Charles、Mark、Bill、Vincent、William、Joseph、James、Henry、Gary、Martin"
-                .Split('、', ' ');
 
-            var alax = new Person { Name = "Alax", Job = new Job { Title = "C#", Salary = 4000 } };
-            repository.Create(alax);
-            Console.WriteLine("Alax, {0} {1}", alax.Job.Title, alax.Job.Salary);
-
-            alax.Job.Title = "Java";
-            alax.Job.Salary = 4500;
-            repository.Update(alax);
             foreach (var entry in repository.All) {
-                Console.WriteLine("{0,-10} {1}", entry.Name, entry.Job.Salary);
+                repository.Delete(entry);
             }
 
-            repository.Delete(alax);
-            Console.WriteLine(repository.All.Count());
+            var Aimee = new Person {
+                Name = "Aimee",
+                Address = "Los Angeles",
+                Job = new Job {
+                    Title = "C#", Salary = 4
+                }
+            };
+            repository.Create(Aimee);
+            var Becky = new Person {
+                Name = "Becky",
+                Address = "Bejing",
+                Job = new Job {
+                    Title = "Java", Salary = 5
+                }
+            };
+            repository.Create(Becky);
+            var Carmen = new Person {
+                Name = "Carmen",
+                Address = "Salt Lake City",
+                Job = new Job {
+                    Title = "Javascript", Salary = 3
+                }
+            };
+            repository.Create(Carmen);
+
+            Console.WriteLine("Person all");
+            foreach (var entry in repository.All) {
+                Console.WriteLine("{0,-10} {1} {2}",
+                    entry.Name, entry.Job.Salary, entry.Address);
+            }
+            Console.WriteLine();
+
+            Carmen = repository.Retrive(Carmen.Id);
+
+            Carmen.Job.Title = "Java";
+            Carmen.Job.Salary = 5;
+            repository.Update(Carmen);
+
+            Console.WriteLine("Person live in USA");
+            foreach (var entry in repository.Retrive("Address", new[] { "Los Angeles", "Salt Lake City" })) {
+                Console.WriteLine("{0,-10} {1} {2}",
+                   entry.Name, entry.Job.Salary, entry.Address);
+            }
+            Console.WriteLine();
+
+            repository.Delete(Aimee);
+            Console.WriteLine("Person left {0}", repository.All.Count());
 
 
-            //for (int i = 0; i < names.Length; i++) {
-            //    var entry = new Person {
-            //        Name = names[i],
-            //        Address = Guid.NewGuid().ToString().Substring(0, 8),
-            //        Birth = DateTime.UtcNow,
-            //        Job = new Job {
-            //            Title = Guid.NewGuid().ToString().Substring(0, 8),
-            //            Salary = Math.Abs(Guid.NewGuid().GetHashCode() % 8000)
-            //        }
-            //    };
-            //    repository.Create(entry);
-            //}
-            //foreach (var entry in repository.All.Where(r => r.Job.Salary > 3000)) {
-            //    Console.WriteLine("{0,-10} {1}", entry.Name, entry.Job.Salary);
-            //}
         }
 
         #region MongoDB
@@ -64,6 +85,28 @@ namespace Demo {
         }
 
         #endregion
+
+        private static void PrepareMongo() {
+            var context = GetMongoRepositoryContext();
+            var repository = new MongoRepository<Person>(context);
+            var names = "Charles、Mark、Bill、Vincent、William、Joseph、James、Henry、Gary、Martin"
+               .Split('、', ' ');
+            for (int i = 0; i < names.Length; i++) {
+                var entry = new Person {
+                    Name = names[i],
+                    Address = Guid.NewGuid().ToString().Substring(0, 8),
+                    Birth = DateTime.UtcNow,
+                    Job = new Job {
+                        Title = Guid.NewGuid().ToString().Substring(0, 8),
+                        Salary = Math.Abs(Guid.NewGuid().GetHashCode() % 8000)
+                    }
+                };
+                repository.Create(entry);
+            }
+            foreach (var entry in repository.All.Where(r => r.Job.Salary > 3000)) {
+                Console.WriteLine("{0,-10} {1}", entry.Name, entry.Job.Salary);
+            }
+        }
 
         #region NHibernate
 

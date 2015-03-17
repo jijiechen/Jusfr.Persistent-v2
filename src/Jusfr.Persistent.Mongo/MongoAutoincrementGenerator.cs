@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using System;
@@ -25,19 +26,19 @@ namespace Jusfr.Persistent.Mongo {
             var famArgs = new FindAndModifyArgs {
                 Query = Query<NewId>.EQ(r => r.Entry, entryName),
                 SortBy = SortBy<NewId>.Descending(r => r.Id),
-                Update = Update<NewId>.Inc(r => r.LastId, 1),
+                Update = Update<NewId>.Inc(r => r.Last, 1),
                 Upsert = true,
                 VersionReturned = FindAndModifyDocumentVersion.Modified,
             };
             var result = collection.FindAndModify(famArgs);
-            return (int)result.ModifiedDocument.GetElement("LastId").Value;
+            return (int)result.ModifiedDocument.GetElement("Last").Value;
         }
 
         public class NewId {
             [BsonId]
-            public Int32 Id { get; set; }
+            public ObjectId Id { get; set; }
             public String Entry { get; set; }
-            public Int32 LastId { get; set; }
+            public Int32 Last { get; set; }
         }
     }
 }

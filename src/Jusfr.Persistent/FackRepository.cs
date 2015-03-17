@@ -49,12 +49,8 @@ namespace Jusfr.Persistent {
             return default(TEntry);
         }
 
-        public override IEnumerable<TEntry> Retrive(String field, IList<Int32> keys) {
-            foreach (var entry in _all) {
-                if (keys.Contains(entry.Id)) {
-                    yield return entry;
-                }
-            }
+        public override IEnumerable<TEntry> Retrive<TKey>(String field, IList<TKey> keys) {
+            throw new NotImplementedException();
         }
 
         public override IQueryable<TEntry> All {

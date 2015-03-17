@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MongoAutoincrementGenerator.cs" />
+    <Compile Include="MongoEntryMapper.cs" />
     <Compile Include="MongoRepositoryContext.cs" />
     <Compile Include="MongoRepository`.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
