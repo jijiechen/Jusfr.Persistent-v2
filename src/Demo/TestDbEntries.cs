@@ -13,7 +13,7 @@ namespace Demo {
         public virtual Decimal                    Salary                    { get; set; }  //decimal(12,2) not null
     }
 
-    public class Person : IAggregate
+    public class Employee : IAggregate
     {
         public virtual Int32                      Id                        { get; set; }  //pk, identity, int not null
         public virtual String                     Name                      { get; set; }  //varchar(10) not null

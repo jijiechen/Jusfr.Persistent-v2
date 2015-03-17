@@ -14,8 +14,8 @@ namespace Demo {
         }
     }
 
-    public class PersonMap : ClassMap<Person> {
-        public PersonMap() {
+    public class EmployeeMap : ClassMap<Employee> {
+        public EmployeeMap() {
             Id(x => x.Id);
             Map(x => x.Name);
             Map(x => x.Birth);

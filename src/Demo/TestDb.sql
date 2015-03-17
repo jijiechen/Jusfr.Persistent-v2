@@ -5,12 +5,12 @@ GO
 USE TestDB
 GO
 
-IF OBJECT_ID('Person') IS NOT NULL
-    DROP TABLE Person
+IF OBJECT_ID('Employee') IS NOT NULL
+    DROP TABLE Employee
 
 GO
 
-CREATE TABLE Person
+CREATE TABLE Employee
     (
       [Id] INT IDENTITY
                PRIMARY KEY ,
@@ -23,7 +23,7 @@ CREATE TABLE Person
     )
 GO
 
-INSERT  Person
+INSERT  Employee
         ( [Name], [Address], [JobId] )
 VALUES  ( 'Rattz', 'Beijing', 2 ),
         ( 'Mike', 'Tokyo', 3 )
