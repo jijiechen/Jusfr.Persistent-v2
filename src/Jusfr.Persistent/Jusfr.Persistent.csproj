@@ -45,7 +45,7 @@
     <Compile Include="DisposableObject.cs" />
     <Compile Include="IEntry`.cs" />
     <Compile Include="IUnitOfWork.cs" />
-    <Compile Include="MockRepository.cs" />
+    <Compile Include="FackRepository.cs" />
     <Compile Include="Paging.cs" />
     <Compile Include="PredicateBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -61,6 +61,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Jusfr.Persistent.Mongo\Jusfr.Persistent.Mongo.csproj">
+      <Project>{08c06258-8d37-43d7-8fc7-e78822d225a3}</Project>
+      <Name>Jusfr.Persistent.Mongo</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Jusfr.Persistent.NH\Jusfr.Persistent.NH.csproj">
       <Project>{c5468e96-4e75-4a75-8a51-2aed42958e67}</Project>
       <Name>Jusfr.Persistent.NH</Name>

@@ -12,12 +12,16 @@ namespace Jusfr.Persistent.NH {
     public class NHibernateRepositoryContext : DisposableObject, IRepositoryContext {
         private static Int32 _count = 0;
         private readonly Guid _id = Guid.NewGuid();
-        private Boolean _suspendTransaction = false;
         private readonly ISessionFactory _sessionFactory;
         private ISession _session;
+        private Boolean _suspendTransaction = false;
 
         public Guid ID {
             get { return _id; }
+        }
+
+        public Boolean DistributedTransactionSupported {
+            get { return true; }
         }
 
         public NHibernateRepositoryContext(ISessionFactory sessionFactory) {

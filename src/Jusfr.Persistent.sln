@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jusfr.Persistent.NH", "Jusf
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo", "Demo\Demo.csproj", "{8A43A795-58A8-4716-ACCD-1BAE7B44D716}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jusfr.Persistent.Mongo", "Jusfr.Persistent.Mongo\Jusfr.Persistent.Mongo.csproj", "{08C06258-8D37-43D7-8FC7-E78822D225A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{8A43A795-58A8-4716-ACCD-1BAE7B44D716}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A43A795-58A8-4716-ACCD-1BAE7B44D716}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A43A795-58A8-4716-ACCD-1BAE7B44D716}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08C06258-8D37-43D7-8FC7-E78822D225A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08C06258-8D37-43D7-8FC7-E78822D225A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08C06258-8D37-43D7-8FC7-E78822D225A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08C06258-8D37-43D7-8FC7-E78822D225A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
