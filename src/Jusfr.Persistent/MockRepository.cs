@@ -7,9 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Jusfr.Persistent {
-    public class MockRepository<TEntry> : Repository<TEntry> where TEntry : IAggregate {
-        public const String IdField = "Id";
-        private static Int32 _id = 0;
+    public class MockRepository<TEntry> : Repository<TEntry> where TEntry : class, IAggregate {
+        private Int32 _id = 0;
         private readonly ConcurrentBag<TEntry> _all = new ConcurrentBag<TEntry>();
 
         public MockRepository()

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Jusfr.Persistent {
     public abstract class Repository<TEntry> : IQueryRepository<TEntry>, IRepository<TEntry>
-        where TEntry : IAggregate {
+        where TEntry : class, IAggregate {
         private IRepositoryContext _context;
         public IRepositoryContext Context {
             get { return _context; }
