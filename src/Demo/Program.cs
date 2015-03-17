@@ -26,24 +26,21 @@ namespace Demo {
             }
 
             var Aimee = new Person {
-                Name = "Aimee",
-                Address = "Los Angeles",
+                Name = "Aimee", Address = "Los Angeles",
                 Job = new Job {
                     Title = "C#", Salary = 4
                 }
             };
             repository.Create(Aimee);
             var Becky = new Person {
-                Name = "Becky",
-                Address = "Bejing",
+                Name = "Becky", Address = "Bejing",
                 Job = new Job {
                     Title = "Java", Salary = 5
                 }
             };
             repository.Create(Becky);
             var Carmen = new Person {
-                Name = "Carmen",
-                Address = "Salt Lake City",
+                Name = "Carmen", Address = "Salt Lake City",
                 Job = new Job {
                     Title = "Javascript", Salary = 3
                 }
