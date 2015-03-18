@@ -43,11 +43,10 @@ namespace Demo {
                     }
                 }
 
-                var page = jobRepository.All.Paging(0, 20);
-                while (page.CurrentPage <= page.TotalPages) {
-                    Console.WriteLine("Paging {0}/{1}, Items {2}", 
-                        page.CurrentPage, page.TotalPages, page.Items.Count());
-                    page = jobRepository.All.Paging(page.CurrentPage + 1, page.ItemsPerPage);
+                var pagings = jobRepository.All.EnumPaging(20);
+                foreach (var paging in pagings) {
+                    Console.WriteLine("Paging {0}/{1}, Items {2}",
+                        paging.CurrentPage, paging.TotalPages, paging.Items.Count());
                 }
             }
             return factory;

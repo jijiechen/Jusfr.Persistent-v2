@@ -17,6 +17,14 @@ namespace Jusfr.Persistent {
                 query.LongCount());
         }
 
+        public static IEnumerable<Paging<TEntry>> EnumPaging<TEntry>(this IQueryable<TEntry> query, Int32 itemsPerpage = 100) {
+            var paging = Paging(query, 1, itemsPerpage);
+            while (paging.CurrentPage <= paging.TotalPages) {
+                yield return paging;
+                paging = Paging(query, paging.CurrentPage + 1, itemsPerpage);
+            }
+        }
+
         //按属性唯一性过滤
         public static IEnumerable<T> Distinct<T, TKey>(this IEnumerable<T> source, Func<T, TKey> selector) {
             var dict = new ConcurrentDictionary<TKey, Object>();
