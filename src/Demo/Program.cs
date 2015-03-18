@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,17 +17,42 @@ using System.Threading.Tasks;
 namespace Demo {
     class Program {
         static void Main(string[] args) {
-            Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
+            //Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
             //var context = BuildMongoRepositoryContext();
             //var repository = new MongoRepository<Employee>(context);
 
-            using (var factory = BuildSessionFactory()) {
-                var context = new NHibernateRepositoryContext(factory);
-                var jobRepository = new NHibernateRepository<Job>(context);
-                var presonRepository = new NHibernateRepository<Employee>(context);
-                NHibernateRepositoryCURD(jobRepository, presonRepository);
-            }
+            PagingDemo();
+
+            //var factory = BuildSessionFactory();
+            //using (var context = new NHibernateRepositoryContext(factory)) {
+            //    var query = context.EnsureSession().CreateSQLQuery("SELECT Id, Name AS Title, JobId AS Salary FROM dbo.Employee");
+            //    var jobs = query.List<Job>();
+            //}
         }
+
+        private static ISessionFactory PagingDemo() {
+            var factory = BuildSessionFactory();
+            using (var context = new NHibernateRepositoryContext(factory)) {
+                var jobRepository = new NHibernateRepository<Job>(context);
+                if (jobRepository.All.Count() < 100) {
+                    for (int i = 0; i < 100; i++) {
+                        jobRepository.Create(new Job {
+                            Title = Guid.NewGuid().ToString("n"),
+                            Salary = Guid.NewGuid().GetHashCode(),
+                        });
+                    }
+                }
+
+                var page = jobRepository.All.Paging(0, 20);
+                while (page.CurrentPage <= page.TotalPages) {
+                    Console.WriteLine("Paging {0}/{1}, Items {2}", 
+                        page.CurrentPage, page.TotalPages, page.Items.Count());
+                    page = jobRepository.All.Paging(page.CurrentPage + 1, page.ItemsPerPage);
+                }
+            }
+            return factory;
+        }
+
         #region MongoDB
 
         private static MongoRepositoryContext BuildMongoRepositoryContext() {
@@ -56,8 +82,6 @@ namespace Demo {
                 Console.WriteLine("{0,-10} {1}", entry.Name, entry.Job.Salary);
             }
         }
-
-        #endregion
 
         private static void MongoRepositoryCURD(IRepository<Employee> repository) {
             foreach (var entry in ((IQueryRepository<Employee>)repository).All) {
@@ -110,66 +134,75 @@ namespace Demo {
             Console.WriteLine("Employee left {0}", ((IQueryRepository<Employee>)repository).All.Count());
         }
 
+        #endregion
 
         #region NHibernate
 
-        private static void NHibernateRepositoryCURD(IRepository<Job> jobRepository, IRepository<Employee> EmployeeRepository) {
-            foreach (var entry in ((IQueryRepository<Job>)jobRepository).All) {
-                jobRepository.Delete(entry);
+        private static void NHibernateRepositoryCURD() {
+            var factory = BuildSessionFactory();
+            using (var context = new NHibernateRepositoryContext(factory)) {
+                //var query = context.EnsureSession().CreateSQLQuery("SELECT Id, Name AS Title, JobId AS Salary FROM dbo.Employee");
+                //var jobs = query.UniqueResult<Job>();
+
+                var jobRepository = new NHibernateRepository<Job>(context);
+                var employeeRepository = new NHibernateRepository<Employee>(context);
+                foreach (var entry in ((IQueryRepository<Job>)jobRepository).All) {
+                    jobRepository.Delete(entry);
+                }
+                foreach (var entry in employeeRepository.All) {
+                    employeeRepository.Delete(entry);
+                }
+
+                var CShape = new Job {
+                    Title = "C#", Salary = 4
+                };
+                jobRepository.Create(CShape);
+                var Java = new Job {
+                    Title = "Java", Salary = 5
+                };
+                jobRepository.Create(Java);
+                var Javascript = new Job {
+                    Title = "Javascript", Salary = 3
+                };
+                jobRepository.Create(Javascript);
+
+                var Aimee = new Employee {
+                    Name = "Aimee", Address = "Los Angeles", Birth = DateTime.Now,
+                    Job = CShape
+                };
+                employeeRepository.Create(Aimee);
+                var Becky = new Employee {
+                    Name = "Becky", Address = "Bejing", Birth = DateTime.Now,
+                    Job = Java
+                };
+                employeeRepository.Create(Becky);
+                var Carmen = new Employee {
+                    Name = "Carmen", Address = "Salt Lake City", Birth = DateTime.Now,
+                    Job = Javascript
+                };
+                employeeRepository.Create(Carmen);
+
+                Console.WriteLine("Employee all");
+                foreach (var entry in employeeRepository.All) {
+                    Console.WriteLine("{0,-10} {1} {2}",
+                        entry.Name, entry.Job.Salary, entry.Address);
+                }
+                Console.WriteLine();
+
+                Carmen = employeeRepository.Retrive(Carmen.Id);
+                Carmen.Job = Java;
+                employeeRepository.Update(Carmen);
+
+                Console.WriteLine("Employee live in USA");
+                foreach (var entry in employeeRepository.Retrive("Address", new[] { "Los Angeles", "Salt Lake City" })) {
+                    Console.WriteLine("{0,-10} {1} {2}",
+                       entry.Name, entry.Job.Salary, entry.Address);
+                }
+                Console.WriteLine();
+
+                employeeRepository.Delete(Carmen);
+                Console.WriteLine("Employee left {0}", employeeRepository.All.Count());
             }
-            foreach (var entry in ((IQueryRepository<Employee>)EmployeeRepository).All) {
-                EmployeeRepository.Delete(entry);
-            }
-
-            var CShape = new Job {
-                Title = "C#", Salary = 4
-            };
-            jobRepository.Create(CShape);
-            var Java = new Job {
-                Title = "Java", Salary = 5
-            };
-            jobRepository.Create(Java);
-            var Javascript = new Job {
-                Title = "Javascript", Salary = 3
-            };
-            jobRepository.Create(Javascript);
-
-            var Aimee = new Employee {
-                Name = "Aimee", Address = "Los Angeles", Birth = DateTime.Now,
-                Job = CShape
-            };
-            EmployeeRepository.Create(Aimee);
-            var Becky = new Employee {
-                Name = "Becky", Address = "Bejing", Birth = DateTime.Now,
-                Job = Java
-            };
-            EmployeeRepository.Create(Becky);
-            var Carmen = new Employee {
-                Name = "Carmen", Address = "Salt Lake City", Birth = DateTime.Now,
-                Job = Javascript
-            };
-            EmployeeRepository.Create(Carmen);
-
-            Console.WriteLine("Employee all");
-            foreach (var entry in ((IQueryRepository<Employee>)EmployeeRepository).All) {
-                Console.WriteLine("{0,-10} {1} {2}",
-                    entry.Name, entry.Job.Salary, entry.Address);
-            }
-            Console.WriteLine();
-
-            Carmen = ((IQueryRepository<Employee>)EmployeeRepository).Retrive(Carmen.Id);
-            Carmen.Job = Java;
-            EmployeeRepository.Update(Carmen);
-
-            Console.WriteLine("Employee live in USA");
-            foreach (var entry in ((IQueryRepository<Employee>)EmployeeRepository).Retrive("Address", new[] { "Los Angeles", "Salt Lake City" })) {
-                Console.WriteLine("{0,-10} {1} {2}",
-                   entry.Name, entry.Job.Salary, entry.Address);
-            }
-            Console.WriteLine();
-
-            EmployeeRepository.Delete(Carmen);
-            Console.WriteLine("Employee left {0}", ((IQueryRepository<Employee>)EmployeeRepository).All.Count());
         }
 
         private static ISessionFactory BuildSessionFactory() {

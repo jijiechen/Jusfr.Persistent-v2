@@ -11,7 +11,7 @@ namespace Jusfr.Persistent {
         public static Paging<TEntry> Paging<TEntry>(this IQueryable<TEntry> query, Int32 currentPage = 1, Int32 itemsPerpage = 10) {
             Int32 skip = Math.Max((currentPage - 1) * itemsPerpage, 0);
             return new Paging<TEntry>(
-                query.Skip(skip).Take(itemsPerpage).ToArray(),
+                query.Skip(skip).Take(itemsPerpage),
                 currentPage,
                 itemsPerpage,
                 query.LongCount());
