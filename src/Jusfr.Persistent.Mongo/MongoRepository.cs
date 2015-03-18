@@ -41,10 +41,10 @@ namespace Jusfr.Persistent.Mongo {
             return docs.FindOneById(id);
         }
 
-        public override IEnumerable<TEntry> Retrive<TKey>(String filed, IList<TKey> keys) {
+        public override IEnumerable<TEntry> Retrive<TKey>(String field, IList<TKey> keys) {
             var docs = _context.DatabaseFactory().GetCollection<TEntry>(_entryMapper.Map<TEntry>());
             //return docs.Find(Query<TEntry>.In(r => r.Id, keys));
-            return docs.Find(Query.In(filed, keys.Select(k => BsonValue.Create(k)))).AsEnumerable();
+            return docs.Find(Query.In(field, keys.Select(k => BsonValue.Create(k)))).AsEnumerable();
         }
 
         public override void Create(TEntry entry) {

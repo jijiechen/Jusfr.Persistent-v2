@@ -18,7 +18,7 @@ namespace Jusfr.Persistent {
 
         public abstract IQueryable<TEntry> All { get; }
         public abstract TEntry Retrive(Int32 id);
-        public abstract IEnumerable<TEntry> Retrive<TKey>(String filed, IList<TKey> keys);
+        public abstract IEnumerable<TEntry> Retrive<TKey>(String field, IList<TKey> keys);
 
         public abstract void Create(TEntry entry);
         public abstract void Update(TEntry entry);
