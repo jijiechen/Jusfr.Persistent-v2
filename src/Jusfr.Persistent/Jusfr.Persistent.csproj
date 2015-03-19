@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BulkCopyHelper.cs" />
     <Compile Include="IAggregate.cs" />
     <Compile Include="IRepositoryContext.cs" />
     <Compile Include="IRepository.cs" />

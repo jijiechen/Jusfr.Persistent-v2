@@ -85,7 +85,7 @@ namespace Jusfr.Persistent.NH {
             if (_session != null) {
                 try {
                     if (_session.Transaction.IsActive) {
-                        Debug.WriteLine("(NH:Transaction commit )");
+                        Debug.WriteLine("(NH:Transaction commit)");
                         _session.Transaction.Commit();
                     }
                 }
@@ -99,7 +99,7 @@ namespace Jusfr.Persistent.NH {
                 }
                 finally {
                     if (_session.Transaction.IsActive) {
-                        Debug.WriteLine("(NH:Transaction dispose )");
+                        Debug.WriteLine("(NH:Transaction dispose)");
                         _session.Transaction.Dispose();
                     }
                 }
