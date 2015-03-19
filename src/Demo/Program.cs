@@ -17,17 +17,43 @@ using System.Threading.Tasks;
 namespace Demo {
     class Program {
         static void Main(string[] args) {
-            //Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
+            Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
             //var context = BuildMongoRepositoryContext();
             //var repository = new MongoRepository<Employee>(context);
 
-            PagingDemo();
+            var factory = BuildSessionFactory();
+            using (var context = new NHibernateRepositoryContext(factory)) {
+                context.AutoTransaction = true;
+                var repository = new NHibernateRepository<Employee>(context);
+                repository.Delete(repository.All.AsEnumerable());
+                var entry = new Employee {
+                    Name = Guid.NewGuid().ToString("n"),
+                    Address = Guid.NewGuid().ToString("n"),
+                    Birth = DateTime.Now,
+                };
+                repository.Create(entry);
+                context.Commit();
 
-            //var factory = BuildSessionFactory();
-            //using (var context = new NHibernateRepositoryContext(factory)) {
-            //    var query = context.EnsureSession().CreateSQLQuery("SELECT Id, Name AS Title, JobId AS Salary FROM dbo.Employee");
-            //    var jobs = query.List<Job>();
-            //}
+                entry.Name = "Josie";
+                repository.Update(entry);
+                context.Commit();
+
+                entry.Address = "Wuhan";
+                repository.Update(entry);
+                //context.Rollback();
+            }
+        }
+
+        private static void SQLTest() {
+            var factory = BuildSessionFactory();
+            using (var context = new NHibernateRepositoryContext(factory)) {
+                var builder = new StringBuilder();
+                builder.AppendLine("UPDATE dbo.Employee SET JobId = JobId + 1;");
+                builder.AppendLine("UPDATE dbo.Employee SET JobId = JobId + 1;");
+                var query = context.EnsureSession()
+                    .CreateSQLQuery(builder.ToString())
+                    .ExecuteUpdate();
+            }
         }
 
         private static ISessionFactory PagingDemo() {
@@ -261,5 +287,12 @@ namespace Demo {
         }
 
         #endregion
+    }
+
+    public class BulkCopyHelper {
+
+        public void Insert<TEntry>(IEnumerable<TEntry> entries) {
+
+        }
     }
 }

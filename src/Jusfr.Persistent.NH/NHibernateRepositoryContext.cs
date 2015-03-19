@@ -16,6 +16,8 @@ namespace Jusfr.Persistent.NH {
         private ISession _session;
         private Boolean _suspendTransaction = false;
 
+        public Boolean AutoTransaction { get; set; }
+
         public Guid ID {
             get { return _id; }
         }
@@ -24,23 +26,37 @@ namespace Jusfr.Persistent.NH {
             get { return true; }
         }
 
+        public virtual IQueryable<TEntry> Of<TEntry>() {
+            return new NhQueryable<TEntry>(EnsureSession().GetSessionImplementation());
+        }
+
         public NHibernateRepositoryContext(ISessionFactory sessionFactory) {
             _sessionFactory = sessionFactory;
         }
 
         protected override void DisposeManaged() {
             if (_session != null) {
-                Commit();
+                try {
+                    Commit();
+                }
+                finally {
+                    Debug.WriteLine("(NH:Session dispose, left {0})",
+                        Interlocked.Decrement(ref _count));
+                    _session.Close();
+                    _session.Dispose();
+                    _session = null;
+                }
             }
         }
 
         public virtual ISession EnsureSession() {
             if (_session == null) {
-                Debug.WriteLine("Open session, count {0}", Interlocked.Increment(ref _count));
+                Debug.WriteLine("(NH:Session open, count {0})",
+                    Interlocked.Increment(ref _count));
                 _session = _sessionFactory.OpenSession();
             }
-            if (_suspendTransaction && !_session.Transaction.IsActive) {
-                Debug.WriteLine("Begin transaction");
+            if ((AutoTransaction || _suspendTransaction) && !_session.Transaction.IsActive) {
+                Debug.WriteLine("(NH:Transaction begin)");
                 _session.BeginTransaction();
             }
             return _session;
@@ -50,6 +66,7 @@ namespace Jusfr.Persistent.NH {
         public virtual void Begin() {
             _suspendTransaction = true;
             if (_session != null && !_session.Transaction.IsActive) {
+                Debug.WriteLine("(NH:Transaction begin)");
                 _session.BeginTransaction();
             }
         }
@@ -57,6 +74,7 @@ namespace Jusfr.Persistent.NH {
         //仅在事务已创建且处于活动中时回滚事务
         public virtual void Rollback() {
             if (_session != null && _session.Transaction.IsActive) {
+                Debug.WriteLine("(NH:Transaction rollback)");
                 _session.Transaction.Rollback();
                 _session.Clear();
             }
@@ -67,30 +85,25 @@ namespace Jusfr.Persistent.NH {
             if (_session != null) {
                 try {
                     if (_session.Transaction.IsActive) {
+                        Debug.WriteLine("(NH:Transaction commit )");
                         _session.Transaction.Commit();
                     }
                 }
                 catch {
                     if (_session.Transaction.IsActive) {
+                        Debug.WriteLine("(NH:Transaction rollback)");
                         _session.Transaction.Rollback();
                     }
                     _session.Clear();
                     throw;
                 }
                 finally {
-                    Debug.WriteLine("Dispose session, left {0}", Interlocked.Decrement(ref _count));
                     if (_session.Transaction.IsActive) {
+                        Debug.WriteLine("(NH:Transaction dispose )");
                         _session.Transaction.Dispose();
                     }
-                    _session.Close();
-                    _session.Dispose();
-                    _session = null;
                 }
             }
-        }
-
-        public virtual IQueryable<TEntry> Of<TEntry>() {
-            return new NhQueryable<TEntry>(EnsureSession().GetSessionImplementation());
         }
     }
 }

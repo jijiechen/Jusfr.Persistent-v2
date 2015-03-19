@@ -14,7 +14,7 @@ CREATE TABLE Employee
     (
       [Id] INT IDENTITY
                PRIMARY KEY ,
-      [Name] VARCHAR(10) NOT NULL
+      [Name] VARCHAR(50) NOT NULL
                          UNIQUE ,
       [Birth] DATETIME NOT NULL
                        DEFAULT ( GETDATE() ) ,
