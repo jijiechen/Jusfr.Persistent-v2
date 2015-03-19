@@ -34,19 +34,20 @@ namespace Demo {
             var factory = BuildSessionFactory();
             using (var context = new NHibernateRepositoryContext(factory)) {
                 var jobRepository = new NHibernateRepository<Job>(context);
-                if (jobRepository.All.Count() < 100) {
-                    for (int i = 0; i < 100; i++) {
-                        jobRepository.Create(new Job {
-                            Title = Guid.NewGuid().ToString("n"),
-                            Salary = Guid.NewGuid().GetHashCode(),
-                        });
-                    }
-                }
 
-                var pagings = jobRepository.All.EnumPaging(20);
+                //context.EnsureSession().CreateSQLQuery("TRUNCATE TABLE [Job]").ExecuteUpdate();
+                //for (int i = 0; i < 110; i++) {
+                //    jobRepository.Create(new Job {
+                //        Title = Guid.NewGuid().ToString("n").Substring(0, 8),
+                //        Salary = Guid.NewGuid().GetHashCode(),
+                //    });
+                //}
+
+                var pagings = jobRepository.All.EnumPaging(20, true);
                 foreach (var paging in pagings) {
                     Console.WriteLine("Paging {0}/{1}, Items {2}",
                         paging.CurrentPage, paging.TotalPages, paging.Items.Count());
+                    paging.CurrentPage = 100;
                 }
             }
             return factory;

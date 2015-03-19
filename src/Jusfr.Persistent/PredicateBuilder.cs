@@ -17,11 +17,21 @@ namespace Jusfr.Persistent {
                 query.LongCount());
         }
 
-        public static IEnumerable<Paging<TEntry>> EnumPaging<TEntry>(this IQueryable<TEntry> query, Int32 itemsPerpage = 100) {
-            var paging = Paging(query, 1, itemsPerpage);
+        public static IEnumerable<Paging<TEntry>> EnumPaging<TEntry>(this IQueryable<TEntry> query, Int32 itemsPerpage, Boolean recalculate) {
+            var currentPage = 1;
+            var paging = Paging(query, currentPage, itemsPerpage);
+            var totalItems = paging.TotalItems; //若不重新计算，则使用始终使用该值
             while (paging.CurrentPage <= paging.TotalPages) {
                 yield return paging;
-                paging = Paging(query, paging.CurrentPage + 1, itemsPerpage);
+                //重新计算分页，即 query.LongCount()
+                currentPage++; //需要拿出来而不是引用变量 paging，因为后者可能在外部被修改
+                if (recalculate) {
+                    paging = Paging(query, currentPage, itemsPerpage);
+                }
+                else {
+                    Int32 skip = Math.Max((currentPage - 1) * itemsPerpage, 0);
+                    paging = new Paging<TEntry>(query.Skip(skip).Take(itemsPerpage), currentPage, itemsPerpage, totalItems);
+                }
             }
         }
 
