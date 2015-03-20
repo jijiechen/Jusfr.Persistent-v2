@@ -7,6 +7,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Builders;
+using System.Linq.Expressions;
 
 namespace Jusfr.Persistent.Mongo {
     public class MongoRepository<TEntry> : Repository<TEntry> where TEntry : class, IAggregate {
@@ -76,6 +77,14 @@ namespace Jusfr.Persistent.Mongo {
             foreach (var entry in entries) {
                 Delete(entry);
             }
+        }
+
+        public override bool Any(params Expression<Func<TEntry, bool>>[] predicates) {
+            IQueryable<TEntry> query = All;
+            foreach (var predicate in predicates) {
+                query = query.Where(predicate);
+            }
+            return query.Select(r => r.Id).Any();
         }
     }
 }

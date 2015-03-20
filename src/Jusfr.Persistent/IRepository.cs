@@ -15,7 +15,7 @@ namespace Jusfr.Persistent {
     }
 
     public interface IQueryRepository<out TEntry> where TEntry : IAggregate {
-        IQueryable<TEntry> All { get; }
+        IQueryable<TEntry> All { get; }        
         TEntry Retrive(Int32 id);
         IEnumerable<TEntry> Retrive<TKey>(String field, IList<TKey> keys);
     }

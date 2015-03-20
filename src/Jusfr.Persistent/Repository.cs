@@ -17,6 +17,7 @@ namespace Jusfr.Persistent {
         }
 
         public abstract IQueryable<TEntry> All { get; }
+        public abstract Boolean Any(params Expression<Func<TEntry, Boolean>>[] predicates);
         public abstract TEntry Retrive(Int32 id);
         public abstract IEnumerable<TEntry> Retrive<TKey>(String field, IList<TKey> keys);
 

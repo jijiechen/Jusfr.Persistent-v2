@@ -36,7 +36,7 @@ namespace Jusfr.Persistent.Mongo {
             _databaseName = databaseName;
             var server = _client.GetServer();
             if (!server.DatabaseExists(databaseName)) {
-                throw new Exception(String.Format("Database {0} not exists", databaseName));
+                throw new Exception(String.Format("Database \"{0}\" not exists", databaseName));
             }            
         }
 

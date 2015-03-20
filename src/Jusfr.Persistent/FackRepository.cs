@@ -3,13 +3,14 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Jusfr.Persistent {
     public class MockRepository<TEntry> : Repository<TEntry> where TEntry : class, IAggregate {
         private Int32 _id = 0;
-        private readonly ConcurrentBag<TEntry> _all = new ConcurrentBag<TEntry>();
+        private readonly List<TEntry> _all = new List<TEntry>();
 
         public MockRepository()
             : base(null) {
@@ -20,33 +21,31 @@ namespace Jusfr.Persistent {
             _all.Add(entry);
         }
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public override void Delete(TEntry entry) {
-            _all.TryTake(out entry);
+            _all.Remove(entry);
         }
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public override void Delete(IEnumerable<TEntry> entries) {
-            TEntry entry;
-            foreach (var entry2 in entries) {
-                entry = entry2;
-                _all.TryPeek(out entry);
+            foreach (var entry in entries) {
+                _all.Remove(entry);
             }
         }
 
+
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public override void Update(TEntry entry) {
 
         }
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public override void Update(IEnumerable<TEntry> entries) {
 
         }
 
         public override TEntry Retrive(int key) {
-            foreach (var entry in _all) {
-                if (entry.Id == key) {
-                    return entry;
-                }
-            }
-            return default(TEntry);
+            return _all.FirstOrDefault(r => r.Id == key);
         }
 
         public override IEnumerable<TEntry> Retrive<TKey>(String field, IList<TKey> keys) {
@@ -55,6 +54,14 @@ namespace Jusfr.Persistent {
 
         public override IQueryable<TEntry> All {
             get { return _all.AsQueryable(); }
+        }
+
+        public override bool Any(params Expression<Func<TEntry, bool>>[] predicates) {
+            IQueryable<TEntry> left = All;
+            foreach (var predicate in predicates) {
+                left = left.Where(predicate);
+            }
+            return left.Any();
         }
     }
 }

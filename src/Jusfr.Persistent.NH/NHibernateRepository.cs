@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
+using System.Linq.Expressions;
 
 namespace Jusfr.Persistent.NH {
     public class NHibernateRepository<TEntry> : Repository<TEntry> where TEntry : class, IAggregate {
@@ -70,6 +71,14 @@ namespace Jusfr.Persistent.NH {
                 session.Delete(entry);
             }
             session.Flush();
+        }
+
+        public override bool Any(params Expression<Func<TEntry, bool>>[] predicates) {
+            IQueryable<TEntry> query = All;
+            foreach (var predicate in predicates) {
+                query = query.Where(predicate);
+            }
+            return query.Select(r => r.Id).Any();
         }
     }
 }
