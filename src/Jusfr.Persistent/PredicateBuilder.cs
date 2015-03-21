@@ -49,7 +49,7 @@ namespace Jusfr.Persistent {
         public static IQueryable<T> OrderBy<T>(this IQueryable<T> queryable, String propertyName) {
             return QueryableHelper<T>.OrderBy(queryable, propertyName, false);
         }
-        public static IQueryable<T> OrderBy<T>(this IQueryable<T> queryable, String propertyName, bool desc) {
+        public static IQueryable<T> OrderBy<T>(this IQueryable<T> queryable, String propertyName, Boolean desc) {
             return QueryableHelper<T>.OrderBy(queryable, propertyName, desc);
         }
 
@@ -57,20 +57,19 @@ namespace Jusfr.Persistent {
             private static readonly ConcurrentDictionary<String, LambdaExpression> cache
                 = new ConcurrentDictionary<String, LambdaExpression>();
 
-            public static IQueryable<T> OrderBy(IQueryable<T> queryable, string propertyName, bool desc) {
-                LambdaExpression keySelector = GetLambdaExpression(propertyName);
+            public static IQueryable<T> OrderBy(IQueryable<T> queryable, String propertyName, Boolean desc) {
+                LambdaExpression keySelector = BuildLambdaExpression(propertyName);
                 var query = desc
                     ? Queryable.OrderByDescending(queryable, (dynamic)keySelector)
                     : Queryable.OrderBy(queryable, (dynamic)keySelector);
                 return (IQueryable<T>)query;
             }
 
-            private static LambdaExpression GetLambdaExpression(string propertyName) {
+            private static LambdaExpression BuildLambdaExpression(String propertyName) {
                 return cache.GetOrAdd(propertyName, prop => {
                     var param = Expression.Parameter(typeof(T));
                     var body = Expression.Property(param, prop);
-                    var keySelector = Expression.Lambda(body, param);
-                    return keySelector;
+                    return Expression.Lambda(body, param);
                 });
             }
         }
