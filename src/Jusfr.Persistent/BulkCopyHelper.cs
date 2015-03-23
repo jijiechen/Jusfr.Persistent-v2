@@ -12,8 +12,16 @@ namespace Jusfr.Persistent {
     public class BulkCopyHelper {
         private String _connectionString;
 
-        public BulkCopyHelper(String connectionString) {
+        public SqlBulkCopyOptions Option { get;private set; }
+
+
+        public BulkCopyHelper(String connectionString)
+            : this(connectionString, SqlBulkCopyOptions.UseInternalTransaction) {
+        }
+
+        public BulkCopyHelper(String connectionString, SqlBulkCopyOptions option) {
             _connectionString = connectionString;
+            Option = option;
         }
 
         public DataTable BuildSchemaTable(Object entry) {

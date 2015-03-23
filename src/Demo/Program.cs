@@ -13,6 +13,9 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
+using MongoDB.Driver.Builders;
+using MongoDB.Driver.Linq;
 
 namespace Demo {
     class Program {
@@ -21,16 +24,18 @@ namespace Demo {
             //var context = BuildMongoRepositoryContext();
             //var repository = new MongoRepository<Employee>(context);
 
-            BulkCopyTest();
+            UpsertTest();
         }
 
         private static void BulkCopyTest() {
             var conStr = ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString;
             var bcpHelper = new BulkCopyHelper(conStr);
-            bcpHelper.Insert(typeof(Employee).Name, GetEmployee(100000L));
+            bcpHelper.Insert(typeof(Employee).Name, GenerateEmployee(100000L));
         }
 
-        static IEnumerable<Employee> GetEmployee(Int64 count) {
+        #region NHibernate
+
+        static IEnumerable<Employee> GenerateEmployee(Int64 count) {
             for (int i = 0; i < count; i++) {
                 yield return new Employee {
                     Name = Guid.NewGuid().ToString("n"),
@@ -64,8 +69,6 @@ namespace Demo {
             }
         }
 
-        #region NHibernate
-
         private static void SQLTest() {
             var factory = BuildSessionFactory();
             using (var context = new NHibernateRepositoryContext(factory)) {
@@ -78,19 +81,11 @@ namespace Demo {
             }
         }
 
-        private static ISessionFactory PagingDemo() {
+        private static void PagingDemo() {
             var factory = BuildSessionFactory();
             using (var context = new NHibernateRepositoryContext(factory)) {
                 var jobRepository = new NHibernateRepository<Job>(context);
-
                 //context.EnsureSession().CreateSQLQuery("TRUNCATE TABLE [Job]").ExecuteUpdate();
-                //for (int i = 0; i < 110; i++) {
-                //    jobRepository.Create(new Job {
-                //        Title = Guid.NewGuid().ToString("n").Substring(0, 8),
-                //        Salary = Guid.NewGuid().GetHashCode(),
-                //    });
-                //}
-
                 var pagings = jobRepository.All.EnumPaging(20, true);
                 foreach (var paging in pagings) {
                     Console.WriteLine("Paging {0}/{1}, Items {2}",
@@ -98,7 +93,6 @@ namespace Demo {
                     paging.CurrentPage = 100;
                 }
             }
-            return factory;
         }
 
         private static void NHibernateRepositoryCURD() {
@@ -168,16 +162,6 @@ namespace Demo {
             }
         }
 
-        private static ISessionFactory BuildSessionFactory() {
-            var dbConStr = ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString;
-            var dbFluentConfig = Fluently.Configure()
-                   .Database(MsSqlConfiguration.MsSql2012.ConnectionString(dbConStr))
-                   .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Program>());
-            var dbConfig = dbFluentConfig.BuildConfiguration();
-            dbConfig.SetInterceptor(new NHibernateInterceptor());
-            return dbConfig.BuildSessionFactory();
-        }
-
         private static void CountingNoDispose(ISessionFactory dbFactory) {
             Task.Factory.StartNew(() => {
                 new Task(() => {
@@ -207,34 +191,23 @@ namespace Demo {
             }).Wait();
         }
 
-        private static void PrepareMssql(ISessionFactory factory) {
-            var Employees = Enumerable.Range(0, 60000)
-                .Select(i => new Employee {
-                    Name = Guid.NewGuid().ToString(),
-                    Birth = DateTime.UtcNow.AddDays(Guid.NewGuid().GetHashCode() % 365),
-                    Address = Guid.NewGuid().ToString(),
-                    Job = null,
-                });
-            using (var dbContext = new NHibernateRepositoryContext(factory)) {
-                var repository = new NHibernateRepository<Employee>(dbContext);
-                foreach (var Employee in Employees) {
-                    repository.Create(Employee);
-                }
-            }
+        private static ISessionFactory BuildSessionFactory() {
+            var dbConStr = ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString;
+            var dbFluentConfig = Fluently.Configure()
+                   .Database(MsSqlConfiguration.MsSql2012.ConnectionString(dbConStr))
+                   .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Program>());
+            var dbConfig = dbFluentConfig.BuildConfiguration();
+            dbConfig.SetInterceptor(new NHibernateInterceptor());
+            return dbConfig.BuildSessionFactory();
         }
 
         #endregion
 
         #region MongoDB
 
-        private static MongoRepositoryContext BuildMongoRepositoryContext() {
-            var conStr = "mongodb://localhost";
-            var database = "migrate";
-            return new MongoRepositoryContext(conStr, database);
-        }
-
         private static void PrepareMongo() {
-            var context = BuildMongoRepositoryContext();
+            var conStr = ConfigurationManager.ConnectionStrings["Local"].ConnectionString;
+            var context = new MongoRepositoryContext(conStr, "Comment");
             var repository = new MongoRepository<Employee>(context);
             var names = "Charles、Mark、Bill、Vincent、William、Joseph、James、Henry、Gary、Martin"
                .Split('、', ' ');
@@ -255,8 +228,12 @@ namespace Demo {
             }
         }
 
-        private static void MongoRepositoryCURD(IRepository<Employee> repository) {
-            foreach (var entry in ((IQueryRepository<Employee>)repository).All) {
+        private static void MongoRepositoryCURD() {
+            var conStr = ConfigurationManager.ConnectionStrings["Local"].ConnectionString;
+            var context = new MongoRepositoryContext(conStr, "Comment");
+            var repository = new MongoRepository<Employee>(context);
+
+            foreach (var entry in repository.All) {
                 repository.Delete(entry);
             }
 
@@ -283,27 +260,68 @@ namespace Demo {
             repository.Create(Carmen);
 
             Console.WriteLine("Employee all");
-            foreach (var entry in ((IQueryRepository<Employee>)repository).All) {
+            foreach (var entry in repository.All) {
                 Console.WriteLine("{0,-10} {1} {2}",
                     entry.Name, entry.Job.Salary, entry.Address);
             }
             Console.WriteLine();
 
-            Carmen = ((IQueryRepository<Employee>)repository).Retrive(Carmen.Id);
+            Carmen = repository.Retrive(Carmen.Id);
 
             Carmen.Job.Title = "Java";
             Carmen.Job.Salary = 5;
             repository.Update(Carmen);
 
             Console.WriteLine("Employee live in USA");
-            foreach (var entry in ((IQueryRepository<Employee>)repository).Retrive("Address", new[] { "Los Angeles", "Salt Lake City" })) {
+            foreach (var entry in repository.Retrive("Address", new[] { "Los Angeles", "Salt Lake City" })) {
                 Console.WriteLine("{0,-10} {1} {2}",
                    entry.Name, entry.Job.Salary, entry.Address);
             }
             Console.WriteLine();
 
             repository.Delete(Carmen);
-            Console.WriteLine("Employee left {0}", ((IQueryRepository<Employee>)repository).All.Count());
+            Console.WriteLine("Employee left {0}", repository.All.Count());
+        }
+
+        private static void UpsertTest() {
+            var conStr = ConfigurationManager.ConnectionStrings["Local"].ConnectionString;
+            var context = new MongoRepositoryContext(conStr, "Comment");
+            var repository = new MongoRepository<Employee>(context);
+            var docs = context.DatabaseFactory().GetCollection<Employee>("Employee");
+
+            Console.WriteLine("Remove all");
+            docs.RemoveAll();
+
+            var Aimee = new Employee {
+                Name = "Aimee", Address = "Los Angeles", Birth = DateTime.Now,
+                Job = new Job {
+                    Title = "C#", Salary = 4
+                }
+            };
+            Console.WriteLine("Insert Aimee");
+            repository.Create(Aimee);
+
+            var Becky = new Employee {
+                Name = "Becky", Address = "Bejing", Birth = DateTime.Now,
+                Job = new Job {
+                    Title = "Java", Salary = 5
+                }
+            };
+            Console.WriteLine("Insert Becky");
+            repository.Create(Becky);
+
+            var Carmen = new Employee {
+                Name = "Carmen", Address = "Salt Lake City", Birth = DateTime.Now,
+                Job = new Job {
+                    Title = "Javascript", Salary = 3
+                }
+            };
+            Console.WriteLine("Insert Carmen");
+            repository.Create(Carmen);
+
+            Aimee.Job.Title = "C++";
+            Console.WriteLine("Insert Aimee");
+            repository.Update(Aimee);
         }
 
         #endregion
