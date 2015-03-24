@@ -23,8 +23,7 @@ namespace Demo {
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
             //var context = BuildMongoRepositoryContext();
             //var repository = new MongoRepository<Employee>(context);
-
-            UpsertTest();
+            PagingSelectorDemo();
         }
 
         private static void BulkCopyTest() {
@@ -91,6 +90,30 @@ namespace Demo {
                     Console.WriteLine("Paging {0}/{1}, Items {2}",
                         paging.CurrentPage, paging.TotalPages, paging.Items.Count());
                     paging.CurrentPage = 100;
+                }
+            }
+        }
+
+        private static void PagingSelectorDemo() {
+            var factory = BuildSessionFactory();
+            using (var context = new NHibernateRepositoryContext(factory)) {
+                var jobRepository = new NHibernateRepository<Employee>(context);
+                //context.EnsureSession().CreateSQLQuery("TRUNCATE TABLE [Job]").ExecuteUpdate();
+                //var paging = jobRepository.All.Paging(r => r.Name, 1, 10);
+                //Console.WriteLine("Paging {0}/{1}",
+                //    paging.CurrentPage, paging.TotalPages);
+                //foreach (var p in paging.Items) {
+                //    Console.WriteLine(p);
+                //}
+
+                var pagings = jobRepository.All.EnumPaging(r => r.Name, 100, false);
+                foreach (var paging in pagings) {
+                    Console.WriteLine("Paging {0}/{1}",
+                        paging.CurrentPage, paging.TotalPages);
+                    foreach (var p in paging.Items) {
+                        Console.WriteLine(p);
+                    }
+                    break;
                 }
             }
         }
