@@ -8,11 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Jusfr.Persistent {
-    public class MockRepository<TEntry> : Repository<TEntry> where TEntry : class, IAggregate {
+    public class FackRepository<TEntry> : Repository<TEntry> where TEntry : class, IAggregate {
         private Int32 _id = 0;
         private readonly List<TEntry> _all = new List<TEntry>();
 
-        public MockRepository()
+        public FackRepository()
             : base(null) {
         }
 
@@ -36,12 +36,10 @@ namespace Jusfr.Persistent {
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public override void Update(TEntry entry) {
-
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public override void Update(IEnumerable<TEntry> entries) {
-
         }
 
         public override TEntry Retrive(int key) {

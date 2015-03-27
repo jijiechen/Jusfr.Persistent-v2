@@ -21,9 +21,22 @@ namespace Demo {
     class Program {
         static void Main(string[] args) {
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
-            //var context = BuildMongoRepositoryContext();
-            //var repository = new MongoRepository<Employee>(context);
-            PagingSelectorDemo();
+
+            var factory = BuildSessionFactory();
+            using (var context = new NHibernateRepositoryContext(factory)) {
+                var jobRepo = new NHibernateRepository<Job>(context);
+                var job1 = jobRepo.All.First();
+                var job2 = new {
+                    Id = job1.Id,
+                    Title = "JavaScript"
+                };
+                context.EnsureSession().Update("Job", job2);
+            }
+        }
+
+        static IEnumerable<Job> EnumJobs() {
+            yield return new Job { Title = "C#", Salary = 4000 };
+            yield return new Job { Title = "Java", Salary = 5000 };
         }
 
         private static void BulkCopyTest() {
