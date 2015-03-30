@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Demo {
     public class JobMap : ClassMap<Job> {
         public JobMap() {
-            Id(x => x.Id);
+            Id(x => x.Id).GeneratedBy.Assigned();
             Map(x => x.Title).Not.Nullable().Length(255);
             Map(x => x.Salary).Not.Nullable();
         }
@@ -16,7 +16,7 @@ namespace Demo {
 
     public class EmployeeMap : ClassMap<Employee> {
         public EmployeeMap() {
-            Id(x => x.Id);
+            Id(x => x.Id).GeneratedBy.Assigned();
             Map(x => x.Name).Not.Nullable().Length(255);
             Map(x => x.Birth).Not.Nullable();
             Map(x => x.Address).Nullable();

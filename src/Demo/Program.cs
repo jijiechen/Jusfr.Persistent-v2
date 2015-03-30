@@ -22,48 +22,108 @@ namespace Demo {
         static void Main(string[] args) {
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
-            PetaPocoOperateOnPort1234();
+            NHibernateOperateOnCobar();
+            //PetaPocoOperateOnCobar();
             //PetaPocoOperateOnPort3366(); return;
             //NHibernateOperateOnPort3366(); return;
         }
-        
-        private static void PetaPocoOperateOnPort1234() {
-            //using (var db = new PetaPoco.Database("TestDb")) {
-            //    //Console.WriteLine("Delete all jobs");
-            //    //db.Execute("DELETE FROM Job;");
-            //    //Console.WriteLine("Delete all employee");
-            //    //db.Execute("DELETE FROM Employee;");
 
-            //    var index=0;
-            //    foreach (var entry in EnumJobs()) {
-            //        entry.Id = ++index;
-            //        db.Insert(entry);
-            //    }
+        private static void NHibernateOperateOnCobar() {
+            using (var context = new TestDbContext()) {
+                //context.Begin();
+                context.EnsureSession().CreateSQLQuery("DELETE FROM Job;").ExecuteUpdate();
+                context.EnsureSession().CreateSQLQuery("DELETE FROM Employee;").ExecuteUpdate();
 
-            //    var names = "Charles、Mark、Bill、Vincent、William、Joseph、James、Henry、Gary、Martin".Split('、', ' ');
-            //    for (int i = 0; i < names.Length; i++) {
-            //        var entry = new Employee {
-            //            Name = names[i],
-            //            Address = Guid.NewGuid().ToString().Substring(0, 8),
-            //            Birth = DateTime.UtcNow,
-            //            //Job = null
-            //        };
-            //        db.Insert(entry);
-            //    }
-            //}
-            using (var db = new PetaPoco.Database("TestDb")) {
-                //var jobs = db.Query<Job>("SELECT * FROM Job");
-                //Console.WriteLine("Query all jobs");
-                //foreach (var job in jobs) {
-                //    Console.WriteLine("{0,2} {1,10} {2:f2}", job.Id, job.Title, job.Salary);
-                //}
+                var jobRepo = new NHibernateRepository<Job>(context);
+                var jobs = EnumJobs().ToArray();
+                var index = 0;
+                foreach (var entry in jobs) {
+                    entry.Id = ++index;
+                    jobRepo.Create(entry);
+                }
 
-                var emps = db.Query<Employee>("SELECT * FROM Employee");
+                var empRepo = new NHibernateRepository<Employee>(context);
+                var names = "Charles、Mark、Bill、Vincent、William、Joseph、James、Henry、Gary、Martin".Split('、', ' ');
+                for (int i = 0; i < names.Length; i++) {
+                    var entry = new Employee {
+                        Id = i,
+                        Name = names[i],
+                        Address = Guid.NewGuid().ToString().Substring(0, 8),
+                        Birth = DateTime.UtcNow,
+                        Job = jobs[Math.Abs(Guid.NewGuid().GetHashCode() % jobs.Length)],
+                    };
+                    empRepo.Create(entry);
+                }
+
+                context.EnsureSession().Flush();
+            }
+            using (var context = new TestDbContext()) {
+                var jobRepo = new NHibernateRepository<Job>(context);
+                var jobs = jobRepo.All;
+                foreach (var entry in jobs) {
+                    entry.Salary += 100;
+                    jobRepo.Update(entry);
+                }
+
+                jobs = jobRepo.All;
+                Console.WriteLine("Query all jobs");
+                foreach (var job in jobs) {
+                    Console.WriteLine("{0,2} {1,10} {2:f2}", job.Id, job.Title, job.Salary);
+                }
+
+                var empRepo = new NHibernateRepository<Employee>(context);
+                var emps = empRepo.All;
                 Console.WriteLine("Query all employee");
                 foreach (var entry in emps) {
                     Console.WriteLine("{0,2} {1,10} {2}",
                         entry.Id, entry.Name, entry.Address);
                 }
+            }
+        }
+
+        private static void PetaPocoOperateOnCobar() {
+            using (var db = new PetaPoco.Database("TestDb")) {
+                db.Execute("DELETE FROM Job;");
+                db.Execute("DELETE FROM Employee;");
+
+                var index = 0;
+                foreach (var entry in EnumJobs()) {
+                    entry.Id = ++index;
+                    db.Insert(entry);
+                }
+
+                var names = "Charles、Mark、Bill、Vincent、William、Joseph、James、Henry、Gary、Martin".Split('、', ' ');
+                for (int i = 0; i < names.Length; i++) {
+                    var entry = new Employee {
+                        Id = i,
+                        Name = names[i],
+                        Address = Guid.NewGuid().ToString().Substring(0, 8),
+                        Birth = DateTime.UtcNow,
+                        //Job = null
+                    };
+                    db.Insert(entry);
+                }
+            }
+
+            using (var db = new PetaPoco.Database("TestDb")) {
+                var jobs = db.Fetch<Job>("SELECT * FROM Job");
+                foreach (var entry in jobs) {
+                    entry.Salary += 100;
+                    db.Update(entry);
+                }
+
+                jobs = db.Fetch<Job>("SELECT * FROM Job");
+                foreach (var job in jobs) {
+                    Console.WriteLine("{0,2} {1,10} {2:f2}", job.Id, job.Title, job.Salary);
+                }
+
+                var emps = db.Query<Employee>("SELECT * FROM Employee");
+                foreach (var entry in emps) {
+                    Console.WriteLine("{0,2} {1,10} {2}",
+                        entry.Id, entry.Name, entry.Address);
+                }
+
+                
             }
         }
 
@@ -94,7 +154,7 @@ namespace Demo {
                 foreach (var job in jobs) {
                     Console.WriteLine("{0,2} {1,10} {2:f2}", job.Id, job.Title, job.Salary);
                 }
-                
+
                 var empRepo = new NHibernateRepository<Employee>(context);
                 var emps = empRepo.All;
                 Console.WriteLine("Query all employee");
@@ -104,7 +164,7 @@ namespace Demo {
                 }
             }
         }
-        
+
         private static void PetaPocoOperateOnPort3366() {
             using (var db = new PetaPoco.Database("TestDb")) {
                 Console.WriteLine("Delete all jobs");
