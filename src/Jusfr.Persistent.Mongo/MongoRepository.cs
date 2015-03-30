@@ -59,7 +59,7 @@ namespace Jusfr.Persistent.Mongo {
             var docs = _context.DatabaseFactory().GetCollection<TEntry>(_entryMapper.Map<TEntry>());
             docs.Update(Query<TEntry>.EQ(r => r.Id, entry.Id),
                 Update<TEntry>.Replace(entry),
-                UpdateFlags.None);
+                UpdateFlags.Upsert);
         }
 
         public override void Update(IEnumerable<TEntry> entries) {
