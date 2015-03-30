@@ -22,21 +22,135 @@ namespace Demo {
         static void Main(string[] args) {
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
-            var factory = BuildSessionFactory();
-            using (var context = new NHibernateRepositoryContext(factory)) {
-                var jobRepo = new NHibernateRepository<Job>(context);
-                var job1 = jobRepo.All.First();
-                var job2 = new {
-                    Id = job1.Id,
-                    Title = "JavaScript"
-                };
-                context.EnsureSession().Update("Job", job2);
+            PetaPocoOperateOnPort1234();
+            //PetaPocoOperateOnPort3366(); return;
+            //NHibernateOperateOnPort3366(); return;
+        }
+        
+        private static void PetaPocoOperateOnPort1234() {
+            //using (var db = new PetaPoco.Database("TestDb")) {
+            //    //Console.WriteLine("Delete all jobs");
+            //    //db.Execute("DELETE FROM Job;");
+            //    //Console.WriteLine("Delete all employee");
+            //    //db.Execute("DELETE FROM Employee;");
+
+            //    var index=0;
+            //    foreach (var entry in EnumJobs()) {
+            //        entry.Id = ++index;
+            //        db.Insert(entry);
+            //    }
+
+            //    var names = "Charles、Mark、Bill、Vincent、William、Joseph、James、Henry、Gary、Martin".Split('、', ' ');
+            //    for (int i = 0; i < names.Length; i++) {
+            //        var entry = new Employee {
+            //            Name = names[i],
+            //            Address = Guid.NewGuid().ToString().Substring(0, 8),
+            //            Birth = DateTime.UtcNow,
+            //            //Job = null
+            //        };
+            //        db.Insert(entry);
+            //    }
+            //}
+            using (var db = new PetaPoco.Database("TestDb")) {
+                //var jobs = db.Query<Job>("SELECT * FROM Job");
+                //Console.WriteLine("Query all jobs");
+                //foreach (var job in jobs) {
+                //    Console.WriteLine("{0,2} {1,10} {2:f2}", job.Id, job.Title, job.Salary);
+                //}
+
+                var emps = db.Query<Employee>("SELECT * FROM Employee");
+                Console.WriteLine("Query all employee");
+                foreach (var entry in emps) {
+                    Console.WriteLine("{0,2} {1,10} {2}",
+                        entry.Id, entry.Name, entry.Address);
+                }
             }
         }
 
-        static IEnumerable<Job> EnumJobs() {
+        private static void NHibernateOperateOnPort3366() {
+            using (var context = new TestDbContext()) {
+                var jobRepo = new NHibernateRepository<Job>(context);
+                var jobs = EnumJobs().ToArray();
+                foreach (var entry in jobs) {
+                    jobRepo.Create(entry);
+                }
+
+                var empRepo = new NHibernateRepository<Employee>(context);
+                var names = "Charles、Mark、Bill、Vincent、William、Joseph、James、Henry、Gary、Martin".Split('、', ' ');
+                for (int i = 0; i < names.Length; i++) {
+                    var entry = new Employee {
+                        Name = names[i],
+                        Address = Guid.NewGuid().ToString().Substring(0, 8),
+                        Birth = DateTime.UtcNow,
+                        Job = jobs[Math.Abs(Guid.NewGuid().GetHashCode() % jobs.Length)],
+                    };
+                    empRepo.Create(entry);
+                }
+            }
+            using (var context = new TestDbContext()) {
+                var jobRepo = new NHibernateRepository<Job>(context);
+                var jobs = jobRepo.All;
+                Console.WriteLine("Query all jobs");
+                foreach (var job in jobs) {
+                    Console.WriteLine("{0,2} {1,10} {2:f2}", job.Id, job.Title, job.Salary);
+                }
+                
+                var empRepo = new NHibernateRepository<Employee>(context);
+                var emps = empRepo.All;
+                Console.WriteLine("Query all employee");
+                foreach (var entry in emps) {
+                    Console.WriteLine("{0,2} {1,10} {2}",
+                        entry.Id, entry.Name, entry.Address);
+                }
+            }
+        }
+        
+        private static void PetaPocoOperateOnPort3366() {
+            using (var db = new PetaPoco.Database("TestDb")) {
+                Console.WriteLine("Delete all jobs");
+                db.Execute("DELETE FROM Job;");
+                Console.WriteLine("Delete all employee");
+                db.Execute("DELETE FROM Employee;");
+
+                foreach (var entry in EnumJobs()) {
+                    db.Insert(entry);
+                }
+
+                var names = "Charles、Mark、Bill、Vincent、William、Joseph、James、Henry、Gary、Martin".Split('、', ' ');
+                for (int i = 0; i < names.Length; i++) {
+                    var entry = new Employee {
+                        Name = names[i],
+                        Address = Guid.NewGuid().ToString().Substring(0, 8),
+                        Birth = DateTime.UtcNow,
+                        //Job = null
+                    };
+                    db.Insert(entry);
+                }
+            }
+            using (var db = new PetaPoco.Database("TestDb")) {
+                var jobs = db.Query<Job>("SELECT * FROM Job");
+                Console.WriteLine("Query all jobs");
+                foreach (var job in jobs) {
+                    Console.WriteLine("{0,2} {1,10} {2:f2}", job.Id, job.Title, job.Salary);
+                }
+
+                var emps = db.Query<Employee>("SELECT * FROM Employee");
+                Console.WriteLine("Query all employee");
+                foreach (var entry in emps) {
+                    Console.WriteLine("{0,2} {1,10} {2}",
+                        entry.Id, entry.Name, entry.Address);
+                }
+            }
+        }
+
+        private static IEnumerable<Job> EnumJobs() {
             yield return new Job { Title = "C#", Salary = 4000 };
             yield return new Job { Title = "Java", Salary = 5000 };
+            yield return new Job { Title = "JavaScript", Salary = 3000 };
+            yield return new Job { Title = "Perl", Salary = 4800 };
+            yield return new Job { Title = "Python", Salary = 4900 };
+            yield return new Job { Title = "C++", Salary = 5900 };
+            yield return new Job { Title = "Objective-C", Salary = 5900 };
         }
 
         private static void BulkCopyTest() {
