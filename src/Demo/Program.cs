@@ -29,7 +29,7 @@ namespace Demo {
         }
 
         private static void NHibernateOperateOnCobar() {
-            using (var context = new TestDbContext()) {
+            using (var context = new PubsContext()) {
                 //context.Begin();
                 context.EnsureSession().CreateSQLQuery("DELETE FROM Job;").ExecuteUpdate();
                 context.EnsureSession().CreateSQLQuery("DELETE FROM Employee;").ExecuteUpdate();
@@ -42,22 +42,22 @@ namespace Demo {
                     jobRepo.Create(entry);
                 }
 
+                index = 0;
                 var empRepo = new NHibernateRepository<Employee>(context);
                 var names = "Charles、Mark、Bill、Vincent、William、Joseph、James、Henry、Gary、Martin".Split('、', ' ');
-                for (int i = 0; i < names.Length; i++) {
+                foreach (var name in names) {
                     var entry = new Employee {
-                        Id = i,
-                        Name = names[i],
+                        Id = ++index,
+                        Name = name,
                         Address = Guid.NewGuid().ToString().Substring(0, 8),
                         Birth = DateTime.UtcNow,
                         Job = jobs[Math.Abs(Guid.NewGuid().GetHashCode() % jobs.Length)],
                     };
                     empRepo.Create(entry);
                 }
-
                 context.EnsureSession().Flush();
             }
-            using (var context = new TestDbContext()) {
+            using (var context = new PubsContext()) {
                 var jobRepo = new NHibernateRepository<Job>(context);
                 var jobs = jobRepo.All;
                 foreach (var entry in jobs) {
@@ -123,12 +123,12 @@ namespace Demo {
                         entry.Id, entry.Name, entry.Address);
                 }
 
-                
+
             }
         }
 
         private static void NHibernateOperateOnPort3366() {
-            using (var context = new TestDbContext()) {
+            using (var context = new PubsContext()) {
                 var jobRepo = new NHibernateRepository<Job>(context);
                 var jobs = EnumJobs().ToArray();
                 foreach (var entry in jobs) {
@@ -147,7 +147,7 @@ namespace Demo {
                     empRepo.Create(entry);
                 }
             }
-            using (var context = new TestDbContext()) {
+            using (var context = new PubsContext()) {
                 var jobRepo = new NHibernateRepository<Job>(context);
                 var jobs = jobRepo.All;
                 Console.WriteLine("Query all jobs");

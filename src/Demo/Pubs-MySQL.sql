@@ -1,4 +1,8 @@
-﻿drop table if exists `Employee`;
+﻿DROP DATABASE IF EXISTS Pubs;
+CREATE DATABASE Pubs;
+USE Pubs;
+
+drop table if exists `Employee`;
 
 create table `Employee` (
     Id INTEGER NOT NULL AUTO_INCREMENT,
