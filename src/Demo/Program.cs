@@ -16,17 +16,39 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
+using FluentNHibernate.Mapping;
 
 namespace Demo {
     class Program {
         static void Main(string[] args) {
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
-            NHibernateOperateOnCobar();
-            //PetaPocoOperateOnCobar();
+            //NHibernateOperateOnCobar(); return;
+            //PetaPocoOperateOnCobar(); return;
             //PetaPocoOperateOnPort3366(); return;
             //NHibernateOperateOnPort3366(); return;
+            ConventionTest();
         }
+
+        private static void ConventionTest() {
+            using (var context = new PubsContext()) {
+                var jobRepo = new NHibernateRepository<Job>(context);
+
+                // 逆变, 编译通过, 由于 NHibernate 的 Mapping 机制抛出下列异常
+                // NHibernate.MappingException {"No persister for: Demo.Program+MyClass"}
+                JobEx j1 = new JobEx() { Title = "new" };
+                jobRepo.Create(j1); 
+
+                var jobs = jobRepo.All;
+                IQueryable<IAggregate> roots = jobs; //协变
+
+                foreach (var root in roots) {
+                    Console.WriteLine("{0,2} {1}", root.Id, ((Job)root).Title);
+                }
+            }
+        }
+
+        
 
         private static void NHibernateOperateOnCobar() {
             using (var context = new PubsContext()) {
@@ -313,7 +335,7 @@ namespace Demo {
 
                 var jobRepository = new NHibernateRepository<Job>(context);
                 var employeeRepository = new NHibernateRepository<Employee>(context);
-                foreach (var entry in ((IQueryRepository<Job>)jobRepository).All) {
+                foreach (var entry in jobRepository.All) {
                     jobRepository.Delete(entry);
                 }
                 foreach (var entry in employeeRepository.All) {
@@ -378,9 +400,8 @@ namespace Demo {
                     for (int i = 0; i < 100; i++) {
                         var dbContext = new NHibernateRepositoryContext(dbFactory);
                         var repository = new NHibernateRepository<Employee>(dbContext);
-                        var query = repository as IQueryRepository<Employee>;
                         //dbContext.Begin();
-                        var list = query.All.ToArray();
+                        var list = repository.All.ToArray();
                     }
                 }, TaskCreationOptions.AttachedToParent).Start();
             }).Wait();
@@ -392,9 +413,8 @@ namespace Demo {
                     for (int i = 0; i < 100; i++) {
                         using (var dbContext = new NHibernateRepositoryContext(dbFactory)) {
                             var repository = new NHibernateRepository<Employee>(dbContext);
-                            var query = repository as IQueryRepository<Employee>;
                             //dbContext.Begin();
-                            var list = query.All.ToArray();
+                            var list = repository.All.ToArray();
                         }
                     }
                 }, TaskCreationOptions.AttachedToParent).Start();

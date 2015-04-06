@@ -6,17 +6,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Jusfr.Persistent {
-    public interface IRepository<in TEntry> where TEntry : IAggregate {
+    public interface IRepository<in TEntry, out TResult> where TEntry : IAggregate {
         void Create(TEntry entry);
         void Update(TEntry entry);
         void Update(IEnumerable<TEntry> entries);
         void Delete(TEntry entry);
         void Delete(IEnumerable<TEntry> entries);
-    }
 
-    public interface IQueryRepository<out TEntry> where TEntry : IAggregate {
-        IQueryable<TEntry> All { get; }        
-        TEntry Retrive(Int32 id);
-        IEnumerable<TEntry> Retrive<TKey>(String field, IList<TKey> keys);
+        IQueryable<TResult> All { get; }
+        TResult Retrive(Int32 id);
+        IEnumerable<TResult> Retrive<TKey>(String field, IList<TKey> keys);
     }
 }
