@@ -20,3 +20,9 @@ create table `Job` (
     Salary NUMERIC(19,5) not null,
     primary key (Id)
 );
+
+drop table if exists EmployeeSalary;
+create table `EmployeeSalary` (
+	EmployeeId INTEGER PRIMARY KEY,
+	Salary NUMERIC(19,5) not null
+);

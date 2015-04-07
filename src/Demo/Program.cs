@@ -25,9 +25,9 @@ namespace Demo {
 
             //NHibernateOperateOnCobar(); return;
             //PetaPocoOperateOnCobar(); return;
-            //PetaPocoOperateOnPort3366(); return;
-            //NHibernateOperateOnPort3366(); return;
-            ConventionTest();
+            //PetaPocoOperate(); return;
+            NHibernateOperate(); return;
+            //ConventionTest();
         }
 
         private static void ConventionTest() {
@@ -37,7 +37,7 @@ namespace Demo {
                 // 逆变, 编译通过, 由于 NHibernate 的 Mapping 机制抛出下列异常
                 // NHibernate.MappingException {"No persister for: Demo.Program+MyClass"}
                 JobEx j1 = new JobEx() { Title = "new" };
-                jobRepo.Create(j1); 
+                jobRepo.Create(j1);
 
                 var jobs = jobRepo.All;
                 IQueryable<IAggregate> roots = jobs; //协变
@@ -48,7 +48,7 @@ namespace Demo {
             }
         }
 
-        
+
 
         private static void NHibernateOperateOnCobar() {
             using (var context = new PubsContext()) {
@@ -104,7 +104,7 @@ namespace Demo {
         }
 
         private static void PetaPocoOperateOnCobar() {
-            using (var db = new PetaPoco.Database("TestDb")) {
+            using (var db = new PetaPoco.Database("Pubs")) {
                 db.Execute("DELETE FROM Job;");
                 db.Execute("DELETE FROM Employee;");
 
@@ -127,7 +127,7 @@ namespace Demo {
                 }
             }
 
-            using (var db = new PetaPoco.Database("TestDb")) {
+            using (var db = new PetaPoco.Database("Pubs")) {
                 var jobs = db.Fetch<Job>("SELECT * FROM Job");
                 foreach (var entry in jobs) {
                     entry.Salary += 100;
@@ -149,7 +149,7 @@ namespace Demo {
             }
         }
 
-        private static void NHibernateOperateOnPort3366() {
+        private static void NHibernateOperate() {
             using (var context = new PubsContext()) {
                 var jobRepo = new NHibernateRepository<Job>(context);
                 var jobs = EnumJobs().ToArray();
@@ -187,8 +187,8 @@ namespace Demo {
             }
         }
 
-        private static void PetaPocoOperateOnPort3366() {
-            using (var db = new PetaPoco.Database("TestDb")) {
+        private static void PetaPocoOperate() {
+            using (var db = new PetaPoco.Database("Pubs")) {
                 Console.WriteLine("Delete all jobs");
                 db.Execute("DELETE FROM Job;");
                 Console.WriteLine("Delete all employee");
@@ -209,7 +209,7 @@ namespace Demo {
                     db.Insert(entry);
                 }
             }
-            using (var db = new PetaPoco.Database("TestDb")) {
+            using (var db = new PetaPoco.Database("Pubs")) {
                 var jobs = db.Query<Job>("SELECT * FROM Job");
                 Console.WriteLine("Query all jobs");
                 foreach (var job in jobs) {
@@ -236,7 +236,7 @@ namespace Demo {
         }
 
         private static void BulkCopyTest() {
-            var conStr = ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString;
+            var conStr = ConfigurationManager.ConnectionStrings["Pubs"].ConnectionString;
             var bcpHelper = new BulkCopyHelper(conStr);
             bcpHelper.Insert(typeof(Employee).Name, GenerateEmployee(100000L));
         }
@@ -422,7 +422,7 @@ namespace Demo {
         }
 
         private static ISessionFactory BuildSessionFactory() {
-            var dbConStr = ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString;
+            var dbConStr = ConfigurationManager.ConnectionStrings["Pubs"].ConnectionString;
             var dbFluentConfig = Fluently.Configure()
                    .Database(MsSqlConfiguration.MsSql2012.ConnectionString(dbConStr))
                    .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Program>());
