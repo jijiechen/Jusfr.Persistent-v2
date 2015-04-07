@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Jusfr.Persistent {
@@ -17,7 +18,7 @@ namespace Jusfr.Persistent {
         }
 
         public override void Create(TEntry entry) {
-            System.Threading.Interlocked.Increment(ref _id);
+            entry.Id = Interlocked.Increment(ref _id);
             _all.Add(entry);
         }
 
