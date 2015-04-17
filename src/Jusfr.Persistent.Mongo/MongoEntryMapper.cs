@@ -6,12 +6,6 @@ using System.Threading.Tasks;
 using System.Reflection;
 
 namespace Jusfr.Persistent.Mongo {
-    public class BsonDocumentDeclarationAttribute : Attribute {
-        public String Document { get; private set; }
-        public BsonDocumentDeclarationAttribute(String document) {
-            Document = document;
-        }
-    }
 
     public interface IMongoEntryMapper {
         String Map(Object entry);
@@ -36,6 +30,25 @@ namespace Jusfr.Persistent.Mongo {
                 return document.Document;
             }
             return entryType.Name;
+        }
+    }
+
+    public static class MongoEntryMapperFactory {
+        private static IMongoEntryMapper _entryMapper;
+
+        public static IMongoEntryMapper Mapger {
+            get {
+                if (_entryMapper == null) {
+                    _entryMapper = new MongoEntryMapper();
+                }
+                return _entryMapper;
+            }
+            set {
+                if (value == null) {
+                    throw new ArgumentNullException("value");
+                }
+                _entryMapper = value;
+            }
         }
     }
 }

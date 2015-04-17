@@ -13,7 +13,6 @@ namespace Jusfr.Persistent.Mongo {
     public class MongoRepository<TEntry> : Repository<TEntry> where TEntry : class, IAggregate {
         private readonly MongoRepositoryContext _context = null;
         private readonly MongoAutoincrementGenerator _autoincrementGenerator;
-        private readonly IMongoEntryMapper _entryMapper = new MongoEntryMapper();
 
         public MongoRepositoryContext MGContext {
             get { return _context; }
@@ -32,34 +31,33 @@ namespace Jusfr.Persistent.Mongo {
 
         public override IQueryable<TEntry> All {
             get {
-                return _context.DatabaseFactory()
-                    .GetCollection<TEntry>(_entryMapper.Map<TEntry>()).AsQueryable();
+                var docs = _context.DatabaseFactory().GetCollection<TEntry>();
+                return docs.AsQueryable();
             }
         }
 
         public override TEntry Retrive(int id) {
-            var docs = _context.DatabaseFactory().GetCollection<TEntry>(_entryMapper.Map<TEntry>());
+            var docs = _context.DatabaseFactory().GetCollection<TEntry>();
             return docs.FindOneById(id);
         }
 
         public override IEnumerable<TEntry> Retrive<TKey>(String field, IList<TKey> keys) {
-            var docs = _context.DatabaseFactory().GetCollection<TEntry>(_entryMapper.Map<TEntry>());
+            var docs = _context.DatabaseFactory().GetCollection<TEntry>();
             //return docs.Find(Query<TEntry>.In(r => r.Id, keys));
             return docs.Find(Query.In(field, keys.Select(k => BsonValue.Create(k)))).AsEnumerable();
         }
 
         public override void Create(TEntry entry) {
-            var entryName = _entryMapper.Map<TEntry>();
-            var docs = _context.DatabaseFactory().GetCollection<TEntry>(entryName);
-            entry.Id = _autoincrementGenerator.GetNewId(entryName);
+            var docs = _context.DatabaseFactory().GetCollection<TEntry>();
+            entry.Id = _autoincrementGenerator.GetNewId(docs.Name);
             docs.Insert(entry);
         }
 
         public override void Update(TEntry entry) {
-            var docs = _context.DatabaseFactory().GetCollection<TEntry>(_entryMapper.Map<TEntry>());
+            var docs = _context.DatabaseFactory().GetCollection<TEntry>();
             docs.Update(Query<TEntry>.EQ(r => r.Id, entry.Id),
                 Update<TEntry>.Replace(entry),
-                UpdateFlags.Upsert);
+                UpdateFlags.None);
         }
 
         public override void Update(IEnumerable<TEntry> entries) {
@@ -68,8 +66,15 @@ namespace Jusfr.Persistent.Mongo {
             }
         }
 
+        public override void Save(TEntry entry) {
+            var docs = _context.DatabaseFactory().GetCollection<TEntry>();
+            docs.Update(Query<TEntry>.EQ(r => r.Id, entry.Id),
+                Update<TEntry>.Replace(entry),
+                UpdateFlags.Upsert);
+        }
+
         public override void Delete(TEntry entry) {
-            var docs = _context.DatabaseFactory().GetCollection<TEntry>(_entryMapper.Map<TEntry>());
+            var docs = _context.DatabaseFactory().GetCollection<TEntry>();
             docs.Remove(Query<TEntry>.EQ(r => r.Id, entry.Id), RemoveFlags.Single);
         }
 
@@ -85,6 +90,13 @@ namespace Jusfr.Persistent.Mongo {
                 query = query.Where(predicate);
             }
             return query.Select(r => r.Id).Any();
+        }
+    }
+
+    public static class MongoDatabaseExtension {
+
+        public static MongoCollection<TEntry> GetCollection<TEntry>(this MongoDatabase mongoDatabase) {
+            return mongoDatabase.GetCollection<TEntry>(MongoEntryMapperFactory.Mapger.Map<TEntry>());
         }
     }
 }

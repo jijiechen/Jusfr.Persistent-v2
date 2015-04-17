@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BsonDocumentDeclarationAttribute.cs" />
     <Compile Include="MongoAutoincrementGenerator.cs" />
     <Compile Include="MongoEntryMapper.cs" />
     <Compile Include="MongoRepositoryContext.cs" />
