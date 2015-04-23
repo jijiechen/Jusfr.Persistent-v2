@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Jusfr.Persistent;
 
-namespace Demo {
+namespace Jusfr.Persistent.Demo {
     [PetaPoco.TableName("job")]
     public class Job : IAggregate
     {

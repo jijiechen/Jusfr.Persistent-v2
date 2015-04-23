@@ -10,7 +10,7 @@ using NHibernate.Cfg.ConfigurationSchema;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 
-namespace Demo {
+namespace Jusfr.Persistent.Demo {
     class PubsContext : NHibernateRepositoryContext {
         private static readonly ISessionFactory _dbFactory;
 
