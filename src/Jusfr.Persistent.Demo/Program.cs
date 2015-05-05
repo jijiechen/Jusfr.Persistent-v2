@@ -1,35 +1,21 @@
-﻿using FluentNHibernate.Cfg;
-using FluentNHibernate.Cfg.Db;
-using Jusfr.Persistent;
-using Jusfr.Persistent.Mongo;
-using Jusfr.Persistent.NH;
-using NHibernate;
+﻿using Jusfr.Persistent.Mongo;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Driver.Builders;
-using MongoDB.Driver.Linq;
-using FluentNHibernate.Mapping;
 
 namespace Jusfr.Persistent.Demo {
     class Program {
         static void Main(string[] args) {
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
-            PrepareData();
+            //PrepareData();
             BasicCrud();
         }
 
         private static void PrepareData() {
             var conStr = ConfigurationManager.ConnectionStrings["PubsMongo"].ConnectionString;
-            var context = new MongoRepositoryContext(conStr, "Pubs");
+            var context = new MongoRepositoryContext(conStr);
             var repository = new MongoRepository<Employee>(context);
 
             var docs = context.Database.GetCollection<Employee>();
@@ -61,7 +47,7 @@ namespace Jusfr.Persistent.Demo {
 
         private static void BasicCrud() {
             var conStr = ConfigurationManager.ConnectionStrings["PubsMongo"].ConnectionString;
-            var context = new MongoRepositoryContext(conStr, "Pubs");
+            var context = new MongoRepositoryContext(conStr);
             var repository = new MongoRepository<Employee>(context);
 
             Console.WriteLine("Remove all employee");
@@ -78,6 +64,9 @@ namespace Jusfr.Persistent.Demo {
                 }
             };
             repository.Save(Aimee);
+
+            repository.Retrive(Aimee.Id);
+
             var Becky = new Employee {
                 Name = "Becky", Address = "Bejing", Birth = DateTime.Now,
                 Job = new Job {

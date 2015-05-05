@@ -3,12 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Jusfr.Persistent.Mongo {
     public class MongoRepositoryContext : DisposableObject, IRepositoryContext {
         private readonly Guid _id = Guid.NewGuid();
         private readonly MongoClient _client;
+        private const String ConnectionStringPattern = "mongodb://[^/]+/(?<db>.+)";
+
         public MongoDatabase Database { get; private set; }
 
         public Guid ID {
@@ -31,9 +34,15 @@ namespace Jusfr.Persistent.Mongo {
             throw new NotImplementedException();
         }
 
-        public MongoRepositoryContext(String connectionString, String databaseName) {
+        public MongoRepositoryContext(String connectionString) {
+            //mongodb://�û���:����@ip:�˿�/���ӵ�Ĭ�����ݿ�
+            var match = Regex.Match(connectionString, ConnectionStringPattern);
+            if (!match.Success) {
+                throw new ArgumentOutOfRangeException("connectionString");
+            }
             _client = new MongoClient(connectionString);
             var server = _client.GetServer();
+            var databaseName = match.Groups["db"].Value;
             if (!server.DatabaseExists(databaseName)) {
                 throw new Exception(String.Format("Database \"{0}\" not exists", databaseName));
             }

@@ -36,7 +36,7 @@ namespace Jusfr.Persistent.Mongo {
     public static class MongoEntryMapperFactory {
         private static IMongoEntryMapper _entryMapper;
 
-        public static IMongoEntryMapper Mapger {
+        public static IMongoEntryMapper Mapper {
             get {
                 if (_entryMapper == null) {
                     _entryMapper = new MongoEntryMapper();
