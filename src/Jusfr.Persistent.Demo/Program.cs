@@ -1,5 +1,4 @@
 ﻿using Jusfr.Persistent.Mongo;
-using Jusfr.Persistent.NH;
 using System;
 using System.Configuration;
 using System.Diagnostics;
@@ -11,13 +10,11 @@ namespace Jusfr.Persistent.Demo {
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
             //PrepareData();
-            //BasicCrud();
-
-            NHibernateTrans();
+            BasicCrud();
         }
 
         private static void PrepareData() {
-            var conStr = ConfigurationManager.ConnectionStrings["Pubs"].ConnectionString;
+            var conStr = ConfigurationManager.ConnectionStrings["PubsMongo"].ConnectionString;
             var context = new MongoRepositoryContext(conStr);
             var repository = new MongoRepository<Employee>(context);
 
@@ -49,7 +46,7 @@ namespace Jusfr.Persistent.Demo {
         }
 
         private static void BasicCrud() {
-            var conStr = ConfigurationManager.ConnectionStrings["Pubs"].ConnectionString;
+            var conStr = ConfigurationManager.ConnectionStrings["PubsMongo"].ConnectionString;
             var context = new MongoRepositoryContext(conStr);
             var repository = new MongoRepository<Employee>(context);
 
@@ -61,12 +58,9 @@ namespace Jusfr.Persistent.Demo {
 
             Console.WriteLine("Create employee");
             var Aimee = new Employee {
-                Name = "Aimee",
-                Address = "Los Angeles",
-                Birth = DateTime.Now,
+                Name = "Aimee", Address = "Los Angeles", Birth = DateTime.Now,
                 Job = new Job {
-                    Title = "C#",
-                    Salary = 4
+                    Title = "C#", Salary = 4
                 }
             };
             repository.Save(Aimee);
@@ -74,22 +68,16 @@ namespace Jusfr.Persistent.Demo {
             repository.Retrive(Aimee.Id);
 
             var Becky = new Employee {
-                Name = "Becky",
-                Address = "Bejing",
-                Birth = DateTime.Now,
+                Name = "Becky", Address = "Bejing", Birth = DateTime.Now,
                 Job = new Job {
-                    Title = "Java",
-                    Salary = 5
+                    Title = "Java", Salary = 5
                 }
             };
             repository.Create(Becky);
             var Carmen = new Employee {
-                Name = "Carmen",
-                Address = "Salt Lake City",
-                Birth = DateTime.Now,
+                Name = "Carmen", Address = "Salt Lake City", Birth = DateTime.Now,
                 Job = new Job {
-                    Title = "Javascript",
-                    Salary = 3
+                    Title = "Javascript", Salary = 3
                 }
             };
             repository.Create(Carmen);
@@ -112,40 +100,6 @@ namespace Jusfr.Persistent.Demo {
             Console.WriteLine("Delete employee");
             repository.Delete(Carmen);
             Console.WriteLine("Employee left {0}", repository.All.Count());
-        }
-
-        private static void NHibernateTrans() {
-            using (var context = new PubsContext())
-            using (var db = new PetaPoco.Database(context.EnsureSession().Connection)) {
-                db.Execute("DELETE FROM job");
-
-                context.Begin();
-
-                var jobRepo = new NHibernateRepository<Job>(context);
-                var job = new Job {
-                    Salary = 100,
-                    Title = "C#",
-                };
-                jobRepo.Create(job);
-
-                job.Salary = 101;
-                using (var db2 = new PetaPoco.Database(context.EnsureSession().Connection)) {
-                    db2.Save(job);
-                }
-
-
-                foreach (var item in jobRepo.All) {
-                    Console.WriteLine("{0}, {1,6} {2}", item.Id, item.Title, item.Salary);
-                }
-
-                context.Rollback();
-
-                foreach (var item in jobRepo.All) {
-                    Console.WriteLine("{0}, {1,6} {2}", item.Id, item.Title, item.Salary);
-                }
-
-
-            }
         }
     }
 }
