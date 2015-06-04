@@ -1,12 +1,12 @@
-﻿using System;
+﻿using NHibernate;
+using NHibernate.Linq;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using NHibernate;
-using NHibernate.Linq;
-using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Jusfr.Persistent.NH {
     public class NHibernateRepositoryContext : DisposableObject, IRepositoryContext {

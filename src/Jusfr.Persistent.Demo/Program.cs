@@ -28,6 +28,7 @@ namespace Jusfr.Persistent.Demo {
             for (int i = 0; i < names.Length; i++) {
                 var entry = new Employee {
                     Name = names[i],
+                    Guid = Guid.NewGuid().ToString(),
                     Address = Guid.NewGuid().ToString().Substring(0, 8),
                     Birth = DateTime.UtcNow,
                     Job = new Job {

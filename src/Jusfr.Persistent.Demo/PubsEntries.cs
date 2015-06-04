@@ -19,6 +19,7 @@ namespace Jusfr.Persistent.Demo {
     {
         public virtual Int32                      Id                        { get; set; }  //pk, identity, int not null
         public virtual String                     Name                      { get; set; }  //varchar(10) not null
+        public virtual String                     Guid                      { get; set; }  //varchar(10) not null
         public virtual DateTime                   Birth                     { get; set; }  //datetime not null
         public virtual String                     Address                   { get; set; }  //varchar(255)
         [PetaPoco.Ignore]
