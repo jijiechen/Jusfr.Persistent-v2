@@ -1,13 +1,13 @@
-﻿using System;
+﻿using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Exceptions;
+using NHibernate.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.Linq;
-using System.Linq.Expressions;
-using NHibernate.Exceptions;
 
 namespace Jusfr.Persistent.NH {
     public class NHibernateRepository<TEntry> : Repository<TEntry> where TEntry : class, IAggregate {
@@ -55,6 +55,10 @@ namespace Jusfr.Persistent.NH {
             //return (TEntry)NHContext.EnsureSession().Get(typeof(TEntry), id);
         }
 
+        public override IEnumerable<TEntry> Retrive(IList<Int32> keys) {
+            return Retrive<Int32>("Id", keys);
+        }
+
         public override IEnumerable<TEntry> Retrive<TKey>(String field, IList<TKey> keys) {
             return Proceed(() => {
                 var session = NHContext.EnsureSession();
@@ -62,6 +66,11 @@ namespace Jusfr.Persistent.NH {
                     .Add(Restrictions.In(field, keys.ToArray()));
                 return criteria.List<TEntry>();
             });
+        }
+
+        public override IEnumerable<TEntry> Retrive<TKey>(Expression<Func<TEntry, TKey>> selector, IList<TKey> keys) {
+            var field = ExpressionBuilder.GetPropertyInfo(selector).Name;
+            return Retrive(field, keys);
         }
 
         public override void Create(TEntry entry) {
@@ -84,6 +93,16 @@ namespace Jusfr.Persistent.NH {
 
         public override void Save(TEntry entry) {
             Proceed(() => _context.EnsureSession().SaveOrUpdate(entry));
+        }
+
+        public override void Save(IEnumerable<TEntry> entries) {
+            Proceed(() => {
+                var session = _context.EnsureSession();
+                foreach (var entry in entries) {
+                    session.SaveOrUpdate(entry);
+                }
+                session.Flush();
+            });
         }
 
         public override void Delete(TEntry entry) {

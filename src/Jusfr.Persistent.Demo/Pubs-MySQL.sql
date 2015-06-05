@@ -23,6 +23,9 @@ create table `Job` (
 
 drop table if exists EmployeeSalary;
 create table `EmployeeSalary` (
-	EmployeeId INTEGER PRIMARY KEY,
+	Id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	EmployeeId INTEGER NOT NULL,
+	JobId INTEGER NOT NULL,
+	Level VARCHAR(255) null,
 	Salary NUMERIC(19,5) not null
 );

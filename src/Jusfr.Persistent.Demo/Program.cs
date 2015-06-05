@@ -28,12 +28,11 @@ namespace Jusfr.Persistent.Demo {
             for (int i = 0; i < names.Length; i++) {
                 var entry = new Employee {
                     Name = names[i],
-                    Guid = Guid.NewGuid().ToString(),
                     Address = Guid.NewGuid().ToString().Substring(0, 8),
                     Birth = DateTime.UtcNow,
                     Job = new Job {
                         Title = Guid.NewGuid().ToString().Substring(0, 8),
-                        Salary = Math.Abs(Guid.NewGuid().GetHashCode() % 10)
+                        Salary = Math.Abs(Guid.NewGuid().GetHashCode() % 8000)
                     }
                 };
                 repository.Create(entry);
@@ -50,6 +49,12 @@ namespace Jusfr.Persistent.Demo {
             var conStr = ConfigurationManager.ConnectionStrings["Pubs"].ConnectionString;
             var context = new MongoRepositoryContext(conStr);
             var repository = new MongoRepository<Employee>(context);
+
+            Console.WriteLine("Remove all employee");
+            foreach (var entry in repository.All) {
+                repository.Delete(entry);
+            }
+            Console.WriteLine();
 
             Console.WriteLine("Create employee");
             var Aimee = new Employee {
@@ -101,16 +106,17 @@ namespace Jusfr.Persistent.Demo {
             }
             Console.WriteLine();
 
-            repository.Delete(Carmen);
-            Console.WriteLine("Delete Carmen, left {0}", repository.All.Count());
-            Console.WriteLine();
-
-            Console.WriteLine("Employee in top 4");
-            var array = repository.All.OrderByDescending(r => r.Id).Select(r => r.Id).Take(4).ToArray();
-            foreach (var entry in repository.All.Where(r => array.Contains(r.Id))) {
+            Console.WriteLine("Employee live in specfied names");
+            var names = repository.All.Select(r => r.Name).Take(5).ToArray();
+            foreach (var entry in repository.Retrive(r => r.Name, names)) {
                 Console.WriteLine("{0,-10} {1} {2}",
                    entry.Name, entry.Job.Salary, entry.Address);
             }
+            Console.WriteLine();
+
+            Console.WriteLine("Delete employee");
+            repository.Delete(Carmen);
+            Console.WriteLine("Employee left {0}", repository.All.Count());
         }
     }
 }
