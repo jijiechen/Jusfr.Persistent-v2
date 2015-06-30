@@ -42,7 +42,7 @@ namespace Jusfr.Persistent.Mongo {
         
 
         public override IEnumerable<TEntry> Retrive(IList<Int32> keys) {
-            return Retrive<Int32>("_id", keys);
+            return this.Retrive<Int32>("_id", keys);
         }
 
         public override IEnumerable<TEntry> Retrive<TKey>(String field, IList<TKey> keys) {
