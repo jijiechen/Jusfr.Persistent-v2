@@ -10,15 +10,19 @@ using System.Threading.Tasks;
 
 namespace Jusfr.Persistent {
     public class FackRepository<TEntry> : Repository<TEntry> where TEntry : class, IAggregate {
-        private Int32 _id = 0;
+        private static Int32 _id = 0;
         private readonly List<TEntry> _all = new List<TEntry>();
+
+        protected virtual Int32 CreateNewId(TEntry entry) {
+            return Interlocked.Increment(ref _id);
+        }
 
         public FackRepository()
             : base(null) {
         }
 
         public override void Create(TEntry entry) {
-            entry.Id = Interlocked.Increment(ref _id);
+            entry.Id = CreateNewId(entry);
             _all.Add(entry);
         }
 
@@ -60,15 +64,15 @@ namespace Jusfr.Persistent {
             return _all.FirstOrDefault(r => r.Id == key);
         }
 
-        public override IEnumerable<TEntry> Retrive(IList<Int32> keys) {
+        public override IEnumerable<TEntry> Retrive(params Int32[] keys) {
             return _all.Where(r => keys.Contains(r.Id));
         }
 
-        public override IEnumerable<TEntry> Retrive<TKey>(String field, IList<TKey> keys) {
+        public override IEnumerable<TEntry> Retrive<TKey>(String field, params TKey[] keys) {
             throw new NotImplementedException();
         }
 
-        public override IEnumerable<TEntry> Retrive<TKey>(Expression<Func<TEntry, TKey>> selector, IList<TKey> keys) {
+        public override IEnumerable<TEntry> Retrive<TKey>(Expression<Func<TEntry, TKey>> selector, params TKey[] keys) {
             var predicate = selector.Compile();
             return _all.Where(r => keys.Contains(predicate(r))).ToList();
         }
@@ -83,6 +87,12 @@ namespace Jusfr.Persistent {
 
         public override IQueryable<TEntry> All {
             get { return _all.AsQueryable(); }
+        }
+    }
+
+    public class FackFixedRepository<TEntry> : FackRepository<TEntry> where TEntry : class, IAggregate {
+        protected override int CreateNewId(TEntry entry) {
+            return entry.Id;
         }
     }
 }

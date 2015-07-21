@@ -34,7 +34,11 @@ namespace Jusfr.Persistent.Mongo {
             throw new NotImplementedException();
         }
 
-        public MongoRepositoryContext(String connectionString) {
+        public MongoRepositoryContext(String connectionString)
+            : this(connectionString, null) {
+        }
+
+        public MongoRepositoryContext(String connectionString, String databaseName) {
             //mongodb://�û���:����@ip:�˿�/���ӵ�Ĭ�����ݿ�
             var match = Regex.Match(connectionString, ConnectionStringPattern);
             if (!match.Success) {
@@ -42,11 +46,12 @@ namespace Jusfr.Persistent.Mongo {
             }
             _client = new MongoClient(connectionString);
             var server = _client.GetServer();
-            var databaseName = match.Groups["db"].Value;
-            if (!server.DatabaseExists(databaseName)) {
-                throw new Exception(String.Format("Database \"{0}\" not exists", databaseName));
-            }
-
+            if (databaseName == null) {
+                databaseName = match.Groups["db"].Value;
+            }            
+			if (!server.DatabaseExists(databaseName)) {
+				throw new Exception(String.Format("Database \"{0}\" not exists", databaseName));
+			}
             Database = server.GetDatabase(databaseName);
         }
     }
