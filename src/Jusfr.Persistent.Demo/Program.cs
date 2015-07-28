@@ -5,14 +5,35 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using Dapper;
 
 namespace Jusfr.Persistent.Demo {
     class Program {
         static void Main(string[] args) {
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
+            NHibernateProc();
             //MongoBasicCrud();
-            NHibernateBasicCrud();
+            //NHibernateBasicCrud();
+        }
+
+        private static void NHibernateProc() {
+            using (var context = new PubsContext()) {
+                var session = context.EnsureSession();
+                //var list = session.CreateSQLQuery("CALL TestProc(2,3)").List();
+                //var list = session.CreateSQLQuery("TestProc(2,3)").List();
+
+            }
+            using (var context = new PubsContext()) {
+                var session = context.EnsureSession();
+                var results = session.Connection.QueryMultiple("TestProc(2,3)");
+
+                while (!results.IsConsumed) {
+                    var list = results.Read<Employee>();
+                    Console.WriteLine("Get employee {0}", list.Count());
+                }
+            }
+
         }
 
         private static void MongoBasicCrud() {
