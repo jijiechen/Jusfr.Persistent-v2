@@ -1,6 +1,7 @@
 ﻿using Jusfr.Persistent.Mongo;
 using Jusfr.Persistent.NH;
 using NHibernate;
+using NHibernate.Linq;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -17,7 +18,94 @@ namespace Jusfr.Persistent.Demo {
             //NHibernateBasicCrud();
             //Null_could_evict();
             //Dupliate_entity_update_need_evict();
-            Dupliate_entity_mock_web_cache();
+            //Dupliate_entity_mock_web_cache();
+
+            ISessionFactory sessionFactory = PubsContext.DbFactory;
+            using (var session = sessionFactory.OpenSession()) {
+                var j1 = session.Get<Job>(1);
+                var j2 = new Job {
+                    Guid = j1.Guid,
+                    Id = j1.Id,
+                    Salary = j1.Salary,
+                    Title = j1.Title
+                };
+
+                //update j2 失败，先Evict j1
+                session.Evict(j1);
+                session.Update(j2);
+            }
+
+            using (var session = sessionFactory.OpenSession()) {
+                IQueryable<Job> query = new NhQueryable<Job>(session.GetSessionImplementation());
+                var j1 = query
+                    .Where(r => r.Id == 1)
+                    .First();
+                var j2 = new Job {
+                    Id = j1.Id,
+                    Salary = 100,
+                    Title = j1.Title,
+                };
+
+                //update j2 失败，先Evict j1
+                session.Evict(j1);
+                session.Update(j2);
+            }
+
+            using (var session = sessionFactory.OpenSession()) {
+                IQueryable<Job> query = new NhQueryable<Job>(session.GetSessionImplementation());
+                var jobj = query
+                    .Where(r => r.Id == 1)
+                    .Select(r => new { r.Id, r.Title })
+                    .First();
+                var j2 = new Job {
+                    Id = jobj.Id,
+                    Salary = 100,
+                    Title = jobj.Title,
+                };
+
+                //不需要 Evict jentry
+                session.Update(j2);
+            }
+
+            using (var session = sessionFactory.OpenSession()) {
+                IQueryable<Job> query = new NhQueryable<Job>(session.GetSessionImplementation());
+                var jobj = query
+                    .Where(r => r.Id == 1)
+                    .Select(r => new {
+                        Id = r.Id,
+                        Salary = r.Salary,
+                        Title = r.Title,
+                    })
+                    .First();
+                var j2 = new Job {
+                    Id = jobj.Id,
+                    Salary = jobj.Salary,
+                    Title = jobj.Title,
+                };
+
+                //不需要 Evict jentry
+                session.Update(j2);
+            }
+
+            using (var session = sessionFactory.OpenSession()) {
+                IQueryable<Job> query = new NhQueryable<Job>(session.GetSessionImplementation());
+                var jentry = query
+                    .Where(r => r.Id == 1)
+                    .Select(r => new Job {
+                        Id = r.Id,
+                        Salary = r.Salary,
+                        Title = r.Title,
+                    })
+                    .First();
+                var j2 = new Job {
+                    Id = jentry.Id,
+                    Salary = jentry.Salary,
+                    Title = jentry.Title,
+                };
+
+                //不需要 Evict jentry
+                session.Update(j2);
+            }
         }
 
         private static void Dupliate_entity_mock_web_cache() {
@@ -60,7 +148,7 @@ namespace Jusfr.Persistent.Demo {
                 }
 
                 //Evict cache 没有用
-                session.Evict(cache); 
+                session.Evict(cache);
                 try {
                     session.Update(cache);
                     Debug.Fail("Should failed for NHibernate.NonUniqueObjectException");
