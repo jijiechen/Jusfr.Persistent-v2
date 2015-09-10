@@ -19,7 +19,30 @@ namespace Jusfr.Persistent.Demo {
             //Null_could_evict();
             //Dupliate_entity_update_need_evict();
             //Dupliate_entity_mock_web_cache();
+            Dupliate_entity_use_trans();
+        }
 
+        private static void Dupliate_entity_use_trans() {
+            ISessionFactory sessionFactory = PubsContext.DbFactory;
+            using (var session = sessionFactory.OpenSession())
+            using (session.BeginTransaction()) {
+                var job1 = session.Get<Job>(1);
+                job1.Title = Guid.NewGuid().ToString();
+                session.Update(job1);
+
+                IQueryable<Job> query = new NhQueryable<Job>(session.GetSessionImplementation());
+                var job2 = query.FirstOrDefault(r => r.Title == job1.Title);
+
+                //在 using (session.BeginTransaction()) 时返回 true，否则返回 false
+                Console.WriteLine("job1 == job2 ? {0}", job1 == job2);
+
+                var list = query.Where(r => r.Id >= 1 && r.Id <= 3).ToList();
+                //走缓存
+                var job3 = session.Get<Job>(3);
+            }
+        }
+
+        private static void Dupliate_entity_use_linq() { 
             ISessionFactory sessionFactory = PubsContext.DbFactory;
             using (var session = sessionFactory.OpenSession()) {
                 var j1 = session.Get<Job>(1);
