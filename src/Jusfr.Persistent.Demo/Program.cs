@@ -1,5 +1,6 @@
 ﻿using Jusfr.Persistent.Mongo;
 using Jusfr.Persistent.NH;
+using MongoDB.Driver.Builders;
 using NHibernate;
 using NHibernate.Linq;
 using System;
@@ -14,12 +15,13 @@ namespace Jusfr.Persistent.Demo {
         static void Main(string[] args) {
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
-            //MongoBasicCrud();
             //NHibernateBasicCrud();
             //Null_could_evict();
             //Dupliate_entity_update_need_evict();
             //Dupliate_entity_mock_web_cache();
-            Dupliate_entity_use_trans();
+            //Dupliate_entity_use_trans();
+            //MongoBasicCrud();
+            Mongo_Sort_Limit();
         }
 
         private static void Dupliate_entity_use_trans() {
@@ -42,7 +44,7 @@ namespace Jusfr.Persistent.Demo {
             }
         }
 
-        private static void Dupliate_entity_use_linq() { 
+        private static void Dupliate_entity_use_linq() {
             ISessionFactory sessionFactory = PubsContext.DbFactory;
             using (var session = sessionFactory.OpenSession()) {
                 var j1 = session.Get<Job>(1);
@@ -351,6 +353,15 @@ namespace Jusfr.Persistent.Demo {
 
             context.Commit();
             context.Dispose();
+        }
+
+        private static void Mongo_Sort_Limit() {
+            var conStr = ConfigurationManager.ConnectionStrings["PubsMongo"].ConnectionString;
+            var context = new MongoRepositoryContext(conStr);
+            var employeeRepo = new MongoRepository<Employee>(context);
+
+            var arr = employeeRepo.All.Where(r => r.Id > 2).Take(2).ToArray();
+            var arr2 = context.Database.GetCollection("Employee").Find(Query.GT("_id", 3)).SetLimit(2).ToArray();
         }
     }
 }
