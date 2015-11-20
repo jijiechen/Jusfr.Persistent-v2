@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 namespace Jusfr.Persistent.NH {
     public class NHibernateInterceptor : EmptyInterceptor, IInterceptor {
         public override SqlString OnPrepareStatement(SqlString sql) {
+#if DEBUG
             Debug.WriteLine(sql);
+#endif
             return base.OnPrepareStatement(sql);
         }
     }
