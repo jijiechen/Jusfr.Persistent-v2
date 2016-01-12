@@ -10,7 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Jusfr.Persistent.NH {
-    public class NHibernateRepository<TEntry> : Repository<TEntry> where TEntry : class, IAggregate {
+
+    public class NHibernateRepository<TEntry> : Repository<TEntry> where TEntry : class, IEntry {
         private readonly NHibernateRepositoryContext _context = null;
 
         public NHibernateRepositoryContext NHContext {
@@ -135,7 +136,7 @@ namespace Jusfr.Persistent.NH {
                 foreach (var predicate in predicates) {
                     query = query.Where(predicate);
                 }
-                return query.Select(r => r.Id).Any();
+                return query.Select(r => r).FirstOrDefault() != null;
             });
         }
     }

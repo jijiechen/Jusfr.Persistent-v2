@@ -9,7 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Jusfr.Persistent {
-    public class FackRepository<TEntry> : Repository<TEntry> where TEntry : class, IAggregate {
+
+    public class FakeRepository<TEntry> : Repository<TEntry> where TEntry : class, IAggregate {
         private static Int32 _id = 0;
         private readonly List<TEntry> _all = new List<TEntry>();
         private readonly Boolean _autoIncrement;
@@ -18,11 +19,11 @@ namespace Jusfr.Persistent {
             return Interlocked.Increment(ref _id);
         }
 
-        public FackRepository()
+        public FakeRepository()
             : this(true) {
         }
 
-        public FackRepository(Boolean autoIncrement)
+        public FakeRepository(Boolean autoIncrement)
             : base(null) {
             _autoIncrement = autoIncrement;
         }
