@@ -29,3 +29,10 @@ create table `EmployeeSalary` (
 	Level VARCHAR(255) null,
 	Salary NUMERIC(19,5) not null
 );
+
+drop table if exists `Department`;
+create table `Department` (
+    Id VARCHAR(255) not null,
+    Name VARCHAR(255) not null,
+	primary key (Id)
+);
