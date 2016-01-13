@@ -11,7 +11,12 @@ using System.Threading.Tasks;
 
 namespace Jusfr.Persistent.NH {
 
-    public class NHibernateRepository<TEntry> : Repository<TEntry> where TEntry : class, IEntry {
+    public interface INHibernateRepository<TEntry> {
+        void Evict(TEntry entry);
+    }
+
+    public class NHibernateRepository<TEntry> : Repository<TEntry>, INHibernateRepository<TEntry> 
+        where TEntry : class, IEntry {
         private readonly NHibernateRepositoryContext _context = null;
 
         public NHibernateRepositoryContext NHContext {
@@ -25,6 +30,8 @@ namespace Jusfr.Persistent.NH {
                 throw new ArgumentOutOfRangeException("context",
                     "Expect NHibernateRepositoryContext but provided " + context.GetType().FullName);
             }
+
+            //Check IEntry is IEntry<TKey>
         }
 
         public override IQueryable<TEntry> All {
@@ -36,10 +43,10 @@ namespace Jusfr.Persistent.NH {
         public override TReutrn Fetch<TReutrn>(Func<IQueryable<TEntry>, TReutrn> query) {
             return SafeProceed(() => query(_context.Of<TEntry>()));
         }
-
-        private void SafeProceed(Action action) {
+        
+        private void SafeProceed(Action<ISession> action) {
             try {
-                action();
+                action(_context.EnsureSession());
             }
             catch (GenericADOException ex) {
                 throw ex.InnerException;
@@ -55,8 +62,17 @@ namespace Jusfr.Persistent.NH {
             }
         }
 
+        private TResult SafeProceed<TResult>(Func<ISession, TResult> func) {
+            try {
+                return func(_context.EnsureSession());
+            }
+            catch (GenericADOException ex) {
+                throw ex.InnerException;
+            }
+        }
+
         public override TEntry Retrive(Int32 id) {
-            return SafeProceed(() => _context.EnsureSession().Get<TEntry>(id));
+            return SafeProceed(session => session.Get<TEntry>(id));
             //return (TEntry)NHContext.EnsureSession().Get(typeof(TEntry), id);
         }
 
@@ -65,8 +81,7 @@ namespace Jusfr.Persistent.NH {
         }
 
         public override IEnumerable<TEntry> Retrive<TKey>(String field, params TKey[] keys) {
-            return SafeProceed(() => {
-                var session = NHContext.EnsureSession();
+            return SafeProceed(session => {
                 ICriteria criteria = session.CreateCriteria<TEntry>()
                     .Add(Restrictions.In(field, keys.ToArray()));
                 return criteria.List<TEntry>();
@@ -81,16 +96,15 @@ namespace Jusfr.Persistent.NH {
         }
 
         public override void Create(TEntry entry) {
-            SafeProceed(() => _context.EnsureSession().Save(entry));
+            SafeProceed(session => session.Save(entry));
         }
 
         public override void Update(TEntry entry) {
-            SafeProceed(() => _context.EnsureSession().Update(entry));
+            SafeProceed(session => session.Update(entry));
         }
 
         public override void Update(IEnumerable<TEntry> entries) {
-            SafeProceed(() => {
-                var session = _context.EnsureSession();
+            SafeProceed(session => {
                 foreach (var entry in entries) {
                     session.Update(entry);
                 }
@@ -99,12 +113,11 @@ namespace Jusfr.Persistent.NH {
         }
 
         public override void Save(TEntry entry) {
-            SafeProceed(() => _context.EnsureSession().SaveOrUpdate(entry));
+            SafeProceed(session => session.SaveOrUpdate(entry));
         }
 
         public override void Save(IEnumerable<TEntry> entries) {
-            SafeProceed(() => {
-                var session = _context.EnsureSession();
+            SafeProceed(session => {
                 foreach (var entry in entries) {
                     session.SaveOrUpdate(entry);
                 }
@@ -113,16 +126,14 @@ namespace Jusfr.Persistent.NH {
         }
 
         public override void Delete(TEntry entry) {
-            SafeProceed(() => {
-                var session = _context.EnsureSession();
+            SafeProceed(session => {
                 session.Delete(entry);
                 session.Flush();
             });
         }
 
         public override void Delete(IEnumerable<TEntry> entries) {
-            SafeProceed(() => {
-                var session = _context.EnsureSession();
+            SafeProceed(session => {
                 foreach (var entry in entries) {
                     session.Delete(entry);
                 }
@@ -138,6 +149,10 @@ namespace Jusfr.Persistent.NH {
                 }
                 return query.Select(r => r).FirstOrDefault() != null;
             });
+        }
+
+        public void Evict(TEntry entry) {
+            SafeProceed(session => session.Evict(entry));
         }
     }
 }

@@ -27,7 +27,8 @@ namespace Jusfr.Persistent.NH {
         }
 
         public virtual IQueryable<TEntry> Of<TEntry>() {
-            return new NhQueryable<TEntry>(EnsureSession().GetSessionImplementation());
+            //return new NhQueryable<TEntry>(EnsureSession().GetSessionImplementation());
+            return EnsureSession().Query<TEntry>();
         }
 
         public NHibernateRepositoryContext(ISessionFactory sessionFactory) {
