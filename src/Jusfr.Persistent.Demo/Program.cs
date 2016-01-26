@@ -1,6 +1,5 @@
 ﻿using Jusfr.Persistent.Mongo;
 using Jusfr.Persistent.NH;
-using MongoDB.Driver.Builders;
 using NHibernate;
 using NHibernate.Linq;
 using System;
@@ -9,6 +8,8 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace Jusfr.Persistent.Demo {
     class Program {
@@ -304,7 +305,9 @@ namespace Jusfr.Persistent.Demo {
             var employeeRepo = new MongoRepository<Employee>(context);
 
             Console.WriteLine("Remove all employee");
-            context.Database.GetCollection<Employee>().RemoveAll();
+//            var collection = context.Database.GetCollection<Employee>();
+//            .DeleteMany(new BsonDocument());
+            context.Database.DropCollection(context.Database.CollectionName<Employee>());
             Console.WriteLine();
 
             var jobTitles = new[] { "Java", "C", "C++", "Objective-C", "C#", "JavaScript", "PHP", "Python" };
@@ -383,7 +386,11 @@ namespace Jusfr.Persistent.Demo {
             var employeeRepo = new MongoRepository<Employee>(context);
 
             var arr = employeeRepo.Fetch(all => all.Where(r => r.Id > 2).Take(2));
-            var arr2 = context.Database.GetCollection("Employee").Find(Query.GT("_id", 3)).SetLimit(2).ToArray();
+            var arr2 =
+                context.Database.GetCollection<Employee>()
+                    .Find(new FilterDefinitionBuilder<Employee>().Gt("_id", 3))
+                    .Limit(2)
+                    .ToList();
         }
     }
 }
