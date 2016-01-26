@@ -25,13 +25,10 @@ namespace Jusfr.Persistent.Demo {
         }
     }
 
-    public class JobEx : Job {
-        public DateTime Time { get; set; }
-    }
-
-    public class JobExMap : JobMap {
-        public JobExMap() {
-            Table("Job");
+    public class DepartmentMap : ClassMap<Department> {
+        public DepartmentMap() {
+            Id(x => x.Id).GeneratedBy.Assigned();
+            Map(x => x.Name);
         }
     }
 }
