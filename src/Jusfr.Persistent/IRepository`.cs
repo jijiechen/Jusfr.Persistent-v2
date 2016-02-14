@@ -6,7 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Jusfr.Persistent {
-    public interface IRepository<in TEntry, out TResult> where TEntry : IEntry {
+   
+    public interface IRepository<in TEntry, out TResult, TKey> where TEntry : IAggregate<TKey> {
         void Create(TEntry entry);
         void Update(TEntry entry);
         void Update(IEnumerable<TEntry> entries);
@@ -17,8 +18,8 @@ namespace Jusfr.Persistent {
 
         IQueryable<TResult> All { get; }
         TReutrn Fetch<TReutrn>(Func<IQueryable<TResult>, TReutrn> query);
-        TResult Retrive(Int32 id);
-        IEnumerable<TResult> Retrive(params Int32[] keys);
-        IEnumerable<TResult> Retrive<TKey>(String field, params TKey[] keys);
+        TResult Retrive(TKey id);
+        IEnumerable<TResult> Retrive(params TKey[] keys);
+        IEnumerable<TResult> Retrive(String field, params TKey[] keys);
     }
 }

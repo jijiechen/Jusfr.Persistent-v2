@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Jusfr.Persistent {
 
-    public class FakeRepository<TEntry> : Repository<TEntry> where TEntry : class, IAggregate {
+    public class FakeRepository<TEntry> : Repository<TEntry, Int32> where TEntry : class, IAggregate<Int32> {
         private static Int32 _id = 0;
         private readonly List<TEntry> _all = new List<TEntry>();
         private readonly Boolean _autoIncrement;
@@ -78,11 +78,11 @@ namespace Jusfr.Persistent {
             return _all.Where(r => keys.Contains(r.Id));
         }
 
-        public override IEnumerable<TEntry> Retrive<TKey>(String field, params TKey[] keys) {
+        public override IEnumerable<TEntry> Retrive(String field, params Int32[] keys) {
             throw new NotImplementedException();
         }
 
-        public override IEnumerable<TEntry> Retrive<TKey>(Expression<Func<TEntry, TKey>> selector, params TKey[] keys) {
+        public override IEnumerable<TEntry> Retrive(Expression<Func<TEntry, Int32>> selector, params Int32[] keys) {
             var predicate = selector.Compile();
             return _all.Where(r => keys.Contains(predicate(r))).ToList();
         }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Jusfr.Persistent;
+using MongoDB.Bson;
 
 namespace Jusfr.Persistent.Demo {
     [PetaPoco.TableName("job")]
@@ -31,4 +32,10 @@ namespace Jusfr.Persistent.Demo {
         public virtual String                     Name                      { get; set; }  //varchar(50) not null
     }
 
+    public class Shipper : IAggregate<ObjectId>
+    {
+        public virtual ObjectId                   Id                        { get; set; }  //pk, identity, int not null
+        public virtual String                     CompanyName               { get; set; }  //varchar(50) not null
+        public virtual String                     Phone                     { get; set; }  //varchar(50) not null
+    }
 }

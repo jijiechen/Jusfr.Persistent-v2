@@ -42,6 +42,7 @@
     <Compile Include="BulkCopyHelper.cs" />
     <Compile Include="ExpressionBuilder.cs" />
     <Compile Include="IAggregate.cs" />
+    <Compile Include="IRepository`.cs" />
     <Compile Include="IRepositoryContext.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="DisposableObject.cs" />
@@ -52,6 +53,7 @@
     <Compile Include="PredicateBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository.cs" />
+    <Compile Include="Repository`.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
