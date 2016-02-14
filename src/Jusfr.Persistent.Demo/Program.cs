@@ -17,12 +17,12 @@ namespace Jusfr.Persistent.Demo {
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
             //NHibernateBasicCrud();
-            //NHibernateGuidAggregateRoot();
+            NHibernateGuidAggregateRoot();
             //NHibernate_Dupliate_entity_need_evict_and_Statistics();
             //NHibernate_Dupliate_entity_need_evict_before_update();
 
             //MongoBasicCrud();
-            MongoAggregateRoot();
+            //MongoAggregateRoot();
         }
 
         private static void NHibernateBasicCrud() {
@@ -134,8 +134,9 @@ namespace Jusfr.Persistent.Demo {
             context.Dispose();
         }
 
-        private static void NHibernateGuidAggregateRoot() {
+        private static void NHibernateGuidAggregateRoot() {           
             var context = new PubsContext();
+            context.EventDispatcher.PostLoad += EventDispatcher_PostLoad;
             var deptRepo = new NHibernateRepository<Department, Guid>(context);
 
             context.Begin();
@@ -157,6 +158,10 @@ namespace Jusfr.Persistent.Demo {
 
             context.Commit();
             context.Dispose();
+        }
+
+        private static void EventDispatcher_PostLoad(Object sender, NHibernate.Event.PostLoadEvent e) {
+            Console.WriteLine("{0}#{1} loaded", e.Entity, e.Id);
         }
 
         private static void MongoAggregateRoot() {
