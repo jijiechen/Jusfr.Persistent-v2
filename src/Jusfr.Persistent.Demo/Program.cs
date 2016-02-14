@@ -16,12 +16,12 @@ namespace Jusfr.Persistent.Demo {
         static void Main(string[] args) {
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
-            NHibernateBasicCrud();
-            NHibernateGuidAggregateRoot();
-            NHibernate_Dupliate_entity_need_evict_and_Statistics();
-            NHibernate_Dupliate_entity_need_evict_before_update();
+            //NHibernateBasicCrud();
+            //NHibernateGuidAggregateRoot();
+            //NHibernate_Dupliate_entity_need_evict_and_Statistics();
+            //NHibernate_Dupliate_entity_need_evict_before_update();
 
-            MongoBasicCrud();
+            //MongoBasicCrud();
             MongoAggregateRoot();
         }
 
@@ -145,10 +145,7 @@ namespace Jusfr.Persistent.Demo {
             }
 
             var deptNames = new[] { "Alfreds Futterkiste", "Ana Trujillo Emparedados y helados",
-                "Antonio Moreno Taquer", "Around the Horn", "B's Beverages",
                 "Berglunds snabbk", "Blauer See Delikatessen", "Blondesddsl p",
-                "Bon app'", "Bottom-Dollar Markets", "Cactus Comidas para llevar",
-                "Centro comercial Moctezuma", "Chop-suey Chinese", "Com","Consolidated Holdings",
                 "Die Wandernde Kuh", "Drachenblut Delikatessen" };
 
             foreach (var item in deptNames) {
@@ -168,10 +165,7 @@ namespace Jusfr.Persistent.Demo {
             context.Database.DropCollection<Department>();
 
             var deptNames = new[] { "Alfreds Futterkiste", "Ana Trujillo Emparedados y helados",
-                "Antonio Moreno Taquer", "Around the Horn", "B's Beverages",
                 "Berglunds snabbk", "Blauer See Delikatessen", "Blondesddsl p",
-                "Bon app'", "Bottom-Dollar Markets", "Cactus Comidas para llevar",
-                "Centro comercial Moctezuma", "Chop-suey Chinese", "Com","Consolidated Holdings",
                 "Die Wandernde Kuh", "Drachenblut Delikatessen" };
 
             var deptRepo = new MongoRepository<Department, Guid>(context);
@@ -182,20 +176,34 @@ namespace Jusfr.Persistent.Demo {
                 });
             }
 
+            context.Database.DropCollection<Shipper>();
             var shipperRepo = new MongoRepository<Shipper, ObjectId>(context);
-            shipperRepo.Create(new Shipper {
+            var shippers = new List<Shipper>();
+            shippers.Add(new Shipper {
                 CompanyName = "Speedy Express",
                 Phone = "(503) 555-9831",
             });
-            shipperRepo.Create(new Shipper {
+            shippers.Add(new Shipper {
                 CompanyName = "United Package",
                 Phone = "(503) 555-3199",
             });
-            shipperRepo.Create(new Shipper {
+            shippers.Add(new Shipper {
                 CompanyName = "Federal Shipping",
                 Phone = "(503) 555-9931",
             });
+            foreach (var entry in shippers) {
+                shipperRepo.Create(entry);
+            }
 
+            var shipper2 = shippers[2];
+            shipper2.CompanyName += " LC.";
+            shipperRepo.Update(shipper2);
+
+            shipperRepo.Delete(shippers[1]);
+
+            var shipper0 = shipperRepo.Retrive(shippers[0].Id);
+            Contract.Assert(shippers[0].CompanyName == shipper0.CompanyName);
+            Contract.Assert(shippers[0].Phone == shipper0.Phone);
             context.Dispose();
         }
 
