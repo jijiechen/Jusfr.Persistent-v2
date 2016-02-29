@@ -5,6 +5,10 @@
 
 :build
 msbuild "%local%src\Jusfr.Persistent.sln" /t:Rebuild /P:Configuration=Release
+@goto pack
+
+:pack
+%local%\.nuget\NuGet pack %local%\src\Jusfr.Persistent.Mongo\Jusfr.Persistent.Mongo.nuspec  -OutputDirectory %local%\release
 @goto copy
 
 :copy
