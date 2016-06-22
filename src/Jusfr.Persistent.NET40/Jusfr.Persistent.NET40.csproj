@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Jusfr.Persistent</RootNamespace>
     <AssemblyName>Jusfr.Persistent</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -39,21 +40,49 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BulkCopyHelper.cs" />
-    <Compile Include="ExpressionBuilder.cs" />
-    <Compile Include="IAggregate.cs" />
-    <Compile Include="IRepository`.cs" />
-    <Compile Include="IRepositoryContext.cs" />
-    <Compile Include="IRepository.cs" />
-    <Compile Include="DisposableObject.cs" />
-    <Compile Include="IEntry.cs" />
-    <Compile Include="IUnitOfWork.cs" />
-    <Compile Include="FakeRepository.cs" />
-    <Compile Include="Paging.cs" />
-    <Compile Include="PredicateBuilder.cs" />
+    <Compile Include="..\Jusfr.Persistent\BulkCopyHelper.cs">
+      <Link>BulkCopyHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\Jusfr.Persistent\DisposableObject.cs">
+      <Link>DisposableObject.cs</Link>
+    </Compile>
+    <Compile Include="..\Jusfr.Persistent\ExpressionBuilder.cs">
+      <Link>ExpressionBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Jusfr.Persistent\FakeRepository.cs">
+      <Link>FakeRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\Jusfr.Persistent\IAggregate.cs">
+      <Link>IAggregate.cs</Link>
+    </Compile>
+    <Compile Include="..\Jusfr.Persistent\IEntry.cs">
+      <Link>IEntry.cs</Link>
+    </Compile>
+    <Compile Include="..\Jusfr.Persistent\IRepository.cs">
+      <Link>IRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\Jusfr.Persistent\IRepositoryContext.cs">
+      <Link>IRepositoryContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Jusfr.Persistent\IRepository`.cs">
+      <Link>IRepository`.cs</Link>
+    </Compile>
+    <Compile Include="..\Jusfr.Persistent\IUnitOfWork.cs">
+      <Link>IUnitOfWork.cs</Link>
+    </Compile>
+    <Compile Include="..\Jusfr.Persistent\Paging.cs">
+      <Link>Paging.cs</Link>
+    </Compile>
+    <Compile Include="..\Jusfr.Persistent\PredicateBuilder.cs">
+      <Link>PredicateBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Jusfr.Persistent\Repository.cs">
+      <Link>Repository.cs</Link>
+    </Compile>
+    <Compile Include="..\Jusfr.Persistent\Repository`.cs">
+      <Link>Repository`.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repository.cs" />
-    <Compile Include="Repository`.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
