@@ -1,0 +1,13 @@
+{
+  "version": "1.0.1-rc2",
+  "buildOptions": {
+    "defines": [ "NETStandard" ]
+  },
+  "dependencies": {
+    "NETStandard.Library": "1.5.0-rc2-24027"
+  },
+  "frameworks": {
+    "netstandard1.3": {
+    }
+  }
+}
