@@ -4,7 +4,7 @@
 @goto build
 
 :build
-msbuild "%local%src\Jusfr.Persistent.sln" /t:Rebuild /P:Configuration=Release
+msbuild "%local%Jusfr.Persistent.sln" /t:Rebuild /P:Configuration=Release
 @goto pack
 
 :pack
