@@ -1,27 +1,33 @@
-﻿using MongoDB.Driver;
-using System;
-using System.Text.RegularExpressions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using MongoDB.Driver;
 
 namespace Jusfr.Persistent.Mongo {
-    public class MongoRepositoryContext : DisposableObject, IRepositoryContext {
+    public class MongoRepositoryContext : IRepositoryContext {
         private readonly Guid _id;
-        private readonly MongoClient _client;
+        private readonly IMongoDatabase _database;
 
-        public IMongoDatabase Database { get; private set; }
+        public bool DistributedTransactionSupported {
+            get { return false; }
+        }
 
         public Guid ID {
             get { return _id; }
         }
+        public IMongoDatabase Database {
+            get { return _database; }
+        }
 
-        public Boolean DistributedTransactionSupported {
-            get { return false; }
+        public MongoRepositoryContext(MongoUrl mongoUrl) {
+            _id = Guid.NewGuid();
+            var client = new MongoClient(mongoUrl);
+            _database = client.GetDatabase(mongoUrl.DatabaseName);
         }
 
         public void Begin() {
-            throw new NotImplementedException();
-        }
-
-        public void Rollback() {
             throw new NotImplementedException();
         }
 
@@ -29,11 +35,12 @@ namespace Jusfr.Persistent.Mongo {
             throw new NotImplementedException();
         }
 
-        public MongoRepositoryContext(String mongoUrl) {
-            _id = Guid.NewGuid();
-            var mongoUri = new MongoUrl(mongoUrl);
-            _client = new MongoClient(mongoUri);
-            Database = _client.GetDatabase(mongoUri.DatabaseName);
+        public void Dispose() {
+
+        }
+
+        public void Rollback() {
+            throw new NotImplementedException();
         }
     }
 }
