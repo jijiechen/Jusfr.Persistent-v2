@@ -2,25 +2,26 @@
 <package >
   <metadata>
     <id>Jusfr.Persistent.Mongo</id>
-    <version>1.0.0</version>
-    <authors>Jusfr</authors>
+    <version>2.0.0-beta</version>
+    <authors>Jusfr, jijie.chen</authors>
     <owners>Jusfr</owners>
     <licenseUrl>https://github.com/jusfr/Jusfr.Persistent-v2</licenseUrl>
     <projectUrl>https://github.com/jusfr/Jusfr.Persistent-v2</projectUrl>
     <iconUrl>https://www.nuget.org/Content/Images/packageDefaultIcon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Persistent framework that implemented a LINQ supported repository pattern.</description>
-    <releaseNotes>This is a initial release.</releaseNotes>
+    <description>Persistent foundation that implements repository pattern from Jusfr.Persistent basic framework.</description>
+    <releaseNotes>As of version 2.0, we supported version 2.0 of Jusfr.Persistent.</releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>Persistence Data MongoDB</tags>
     <dependencies>
-      <dependency id="MongoDB.Bson" version="2.2.2" />
-      <dependency id="MongoDB.Driver" version="2.2.2" />
-      <dependency id="MongoDB.Driver.Core" version="2.2.2" />
+	  <dependency id="Jusfr.Persistent" version="[2.0.0-rc2,)" />
+      <dependency id="MongoDB.Bson" version="2.2.4" />
+      <dependency id="MongoDB.Driver" version="2.2.4" />
+      <dependency id="MongoDB.Driver.Core" version="2.2.4" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Jusfr.Persistent*.dll" target="lib" />
-    <file src="bin\Release\Jusfr.Persistent*.pdb" target="lib" />
+    <file src="bin\Release\Jusfr.Persistent.Mongo.dll" target="lib" />
+    <file src="bin\Release\Jusfr.Persistent.Mongo.pdb" target="lib" />
   </files>
 </package>

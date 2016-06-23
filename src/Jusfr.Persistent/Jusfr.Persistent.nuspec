@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Jusfr.Persistent</id>
+    <version>2.0.0-rc2</version>
+    <authors>Jusfr, jijie.chen</authors>
+    <owners>Jusfr</owners>
+    <licenseUrl>https://github.com/jijiechen/Jusfr.Persistent-v2</licenseUrl>
+    <projectUrl>https://github.com/jijiechen/Jusfr.Persistent-v2</projectUrl>
+    <iconUrl>https://www.nuget.org/Content/Images/packageDefaultIcon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Persistent base framework that implemented a LINQ supported repository pattern. You'll need to implemt Repository classes to use it, or you can choose to use a package such as Jusfr.Persistent.Mongo</description>
+    <releaseNotes>As of version 2.0 we supported .net core runtime;
+    Striped out many unnecessary interface members and classes.</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>Persistence</tags>
+    <dependencies>
+		<group targetFramework=".NETFramework4.0" >
+		</group>
+		<group targetFramework=".NETStandard1.3">
+			<dependency id="NETStandard.Library" version="[1.5.0-rc2-24027, )" />
+			<dependency id="System.Linq.Expressions" version="[4.0.11-rc2-24027, )" />
+		</group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\netstandard1.3\Jusfr.Persistent*.dll" target="lib\netstandard1.3" />
+    <file src="bin\Release\netstandard1.3\Jusfr.Persistent*.pdb" target="lib\netstandard1.3" />
+	<file src="..\Jusfr.Persistent.NET40\bin\Release\Jusfr.Persistent*.dll" target="lib\net40" />
+    <file src="..\Jusfr.Persistent.NET40\bin\Release\Jusfr.Persistent*.pdb" target="lib\net40" />
+  </files>
+</package>
