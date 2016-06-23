@@ -48,13 +48,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BsonDocumentDeclarationAttribute.cs" />
-    <Compile Include="MongoAutoincrementGenerator.cs" />
-    <Compile Include="MongoDatabaseExtension.cs" />
-    <Compile Include="MongoEntryMapper.cs" />
-    <Compile Include="MongoRepositor`.cs" />
-    <Compile Include="MongoRepositoryContext.cs" />
+    <Compile Include="MongoId.cs" />
     <Compile Include="MongoRepository.cs" />
+    <Compile Include="MongoRepositoryContext.cs" />
+    <Compile Include="MongoRepositoryMapper.cs" />
+    <Compile Include="MongoRepository`.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

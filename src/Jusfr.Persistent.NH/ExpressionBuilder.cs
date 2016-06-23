@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Jusfr.Persistent {
+namespace Jusfr.Persistent.NHibernate {
     public static class ExpressionBuilder {
         // http://stackoverflow.com/questions/671968/retrieving-property-name-from-lambda-expression
         public static PropertyInfo GetPropertyInfo<TSource, TProperty>(Expression<Func<TSource, TProperty>> selector) {

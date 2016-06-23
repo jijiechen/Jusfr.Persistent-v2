@@ -186,3 +186,4 @@ FakesAssemblies/
 
 project.lock.json
 
+*.scgdat

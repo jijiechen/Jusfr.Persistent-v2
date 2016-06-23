@@ -8,10 +8,9 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Jusfr.Persistent.Mongo {
-    public class MongoRepository<TEntry> : Repository<TEntry> where TEntry : IMongoId<ObjectId> {
+    public class MongoRepository<TEntry, TKey> : Repository<TEntry> where TEntry : IMongoId<TKey> {
         private readonly MongoRepositoryContext _context = null;
         private readonly IMongoRepositoryMapper _mapper;
-        private const String MongoId = "_id";
 
         public MongoRepositoryContext MongoRepositoryContext {
             get { return _context; }
@@ -37,33 +36,30 @@ namespace Jusfr.Persistent.Mongo {
             }
         }
 
+        public override TReutrn Fetch<TReutrn>(Func<IQueryable<TEntry>, TReutrn> query) {
+            return query(All);
+        }
+
         private IMongoCollection<TEntry> GetCollection() {
             var collectionName = _mapper.Map<TEntry>();
             var collection = _context.Database.GetCollection<TEntry>(collectionName);
             return collection;
         }
 
-        public override TReutrn Fetch<TReutrn>(Func<IQueryable<TEntry>, TReutrn> query) {
-            return query(All);
-        }
-
         public override TEntry Retrive(Object id) {
-            if (!(id is ObjectId)) {
-                throw new ArgumentOutOfRangeException("id");
-            }
             var collection = GetCollection();
             //var queryDocument = new BsonDocument(MongoId, BsonValue.Create(id));
             //return collection.Find(queryDocument).FirstOrDefault();
-            var filter = Builders<TEntry>.Filter.Eq(e => e.Id, (ObjectId)id);
+            var filter = Builders<TEntry>.Filter.Eq(e => e.Id, (TKey) id);
             return collection.Find(filter).SingleOrDefault();
         }
 
         public override IEnumerable<TEntry> Retrive(Object[] keys) {
-            if (!keys.All(k => k is ObjectId)) {
+            if (!keys.All(k => k is TKey)) {
                 throw new ArgumentOutOfRangeException("keys");
             }
             var collection = GetCollection();
-            var filter = Builders<TEntry>.Filter.In((TEntry entry) => entry.Id, keys.Cast<ObjectId>());
+            var filter = Builders<TEntry>.Filter.In((TEntry entry) => entry.Id, keys.Cast<TKey>());
             //var filter = new FilterDefinitionBuilder<TEntry>()
             //    .In(new StringFieldDefinition<TEntry, ObjectId>(MongoId), keys);
             return collection.Find(filter).ToList();
@@ -86,14 +82,14 @@ namespace Jusfr.Persistent.Mongo {
         public override void Create(TEntry entry) {
             var collection = GetCollection();
             collection.InsertOne(entry);
-        }
+        }        
 
         public override void Update(TEntry entry) {
             var collection = GetCollection();
             collection.FindOneAndReplace(new FilterDefinitionBuilder<TEntry>().Eq(r => r.Id, entry.Id), entry);
         }
 
-        public void Update<TMember>(ObjectId id, Expression<Func<TEntry, TMember>> memberExpression, TMember value) {
+        public void Update<TMember>(TKey id, Expression<Func<TEntry, TMember>> memberExpression, TMember value) {
             var collection = GetCollection();
             collection.FindOneAndUpdate(new FilterDefinitionBuilder<TEntry>().Eq(r => r.Id, id),
                 new UpdateDefinitionBuilder<TEntry>().Set(memberExpression, value),
@@ -119,4 +115,5 @@ namespace Jusfr.Persistent.Mongo {
             return query.Select(r => r.Id).Any();
         }
     }
+
 }
