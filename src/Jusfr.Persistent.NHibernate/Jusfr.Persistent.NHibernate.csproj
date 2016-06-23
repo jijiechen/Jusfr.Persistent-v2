@@ -7,8 +7,8 @@
     <ProjectGuid>{C5468E96-4E75-4A75-8A51-2AED42958E67}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Jusfr.Persistent.NH</RootNamespace>
-    <AssemblyName>Jusfr.Persistent.NH</AssemblyName>
+    <RootNamespace>Jusfr.Persistent.NHibernate</RootNamespace>
+    <AssemblyName>Jusfr.Persistent.NHibernate</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
