@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Jusfr.Persistent {
+namespace Jusfr.Persistent
+{
     public abstract class Repository<TEntry> : IRepository<TEntry> {
         private IRepositoryContext _context;
         public IRepositoryContext Context {

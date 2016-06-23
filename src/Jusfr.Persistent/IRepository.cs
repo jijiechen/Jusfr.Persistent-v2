@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Jusfr.Persistent {
+namespace Jusfr.Persistent
+{
     public interface IRepository<in TEntry, out TResult> {
         void Create(TEntry entry);
         void Update(TEntry entry);
